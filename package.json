@@ -1,0 +1,28 @@
+{
+  "name": "bustle",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "bustle": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "vite build",
+    "release": "./bin/release_win.sh",
+    "test": "jest"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "arktype": "^2.1.19",
+    "cmd-ts": "^0.13.0"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.24",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3",
+    "vite": "^6.2.6",
+    "vite-plugin-node": "^5.0.1"
+  }
+}
