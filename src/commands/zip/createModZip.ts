@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import path from 'path'
 
 import AdmZip from 'adm-zip'
@@ -15,7 +16,18 @@ export async function createModZip(options: ZipOptions): Promise<void> {
     if (!logger.dryRun) {
         const zip = new AdmZip()
         
-        zip.addLocalFolder(options.from, withoutExt)
+        // find all files and folders in options.from
+        const entries = await fs.readdir(options.from, { withFileTypes: true })
+        for (const entry of entries) {
+            if (entry.isDirectory()) {
+                logger.action(`Adding folder: ${entry.name}`)
+                zip.addLocalFolder(path.join(options.from, entry.name), entry.name)
+            }
+            else {
+                logger.action(`Adding file: ${entry.name}`)
+                zip.addLocalFile(path.join(options.from, entry.name), entry.name)
+            }
+        }
         
         await new Promise<void>((resolve, reject) => {
             zip.writeZip(zipPath, (error) => {

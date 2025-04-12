@@ -31,6 +31,7 @@ const StripArgsType = type({
 export type BuildArgs = {
     from: string
     to: string
+    project: string
     name: string
     dryRun?: boolean
     keep?: boolean

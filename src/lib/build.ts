@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import path from "path"
 import { Logger } from "./logger.js"
 import { ensureDir } from "./fs-utils.js"
@@ -15,7 +16,6 @@ export interface BuildPackageOptions {
 
 export type BuildJob = (
     logger: Logger,
-    tempDir: string
 ) => Promise<void>
 
 export async function build(options: BuildPackageOptions, job: BuildJob): Promise<void> {
@@ -25,17 +25,18 @@ export async function build(options: BuildPackageOptions, job: BuildJob): Promis
     const buildZipPath = path.join(options.tempDir, zipName)
     const finalZipPath = path.join(options.to, zipName)
 
-    logger.info("Starting build...")
+    logger.info(`Starting build in ${options.tempDir}`)
 
     try {
+        logger.action(`Cleaning temporary directory: ${options.tempDir}`)
+        await fs.rm(options.tempDir, { recursive: true, force: true })
+        logger.action(`Creating temporary directory: ${options.tempDir}`)
         await ensureDir(tempDir, logger)
-
-        await job(logger, tempDir)
-
+        await job(logger)
         await copyMetadata(options.from, tempDir, logger)
 
         await createModZip({
-            from: tempDir,
+            from: options.tempDir,
             to: buildZipPath,
             dryRun: options.dryRun
         })
@@ -49,7 +50,7 @@ export async function build(options: BuildPackageOptions, job: BuildJob): Promis
         logger.info('Build complete!')
     } catch (error) {
         if (!options.keep) {
-            await cleanupTempDir(tempDir, logger).catch(() => { })
+            await cleanupTempDir(options.tempDir, logger).catch(() => { })
         }
         throw error
     }

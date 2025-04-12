@@ -1,6 +1,7 @@
 import { command, option, string, flag } from 'cmd-ts';
 import { buildMod } from "./buildMod.js";
 
+
 export const build = command({
     name: 'release',
     description: `Build, strip and package a mod zip for release`,
@@ -19,6 +20,12 @@ export const build = command({
             type: string,
             long: 'name',
             description: 'Name of mod folder'
+        }),
+        project: option({
+            type: string,
+            long: 'project',
+            description: 'Path to Godot project, enables resource import gathering',
+            defaultValue: () => ""
         }),
         dryRun: flag({
             long: 'dry-run',

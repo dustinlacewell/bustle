@@ -9,7 +9,10 @@ export const isGodotScript = (file: string): boolean =>
 export const isGodotScene = (file: string): boolean =>
     file.endsWith('.tscn')
 
-export const getFilesRecursively = async (dir: string): Promise<{gdFiles: string[], tscnFiles: string[]}> => {
+export const isImportFile = (file: string): boolean =>
+    file.endsWith('.import')
+
+export const getFilesRecursively = async (dir: string): Promise<{gdFiles: string[], tscnFiles: string[], importFiles: string[]}> => {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     
     const files = await Promise.all(entries.map(async entry => {
@@ -19,15 +22,17 @@ export const getFilesRecursively = async (dir: string): Promise<{gdFiles: string
         } else {
             return {
                 gdFiles: isGodotScript(fullPath) ? [fullPath] : [],
-                tscnFiles: isGodotScene(fullPath) ? [fullPath] : []
+                tscnFiles: isGodotScene(fullPath) ? [fullPath] : [],
+                importFiles: isImportFile(fullPath) ? [fullPath] : []
             }
         }
     }))
 
     return files.reduce((acc, curr) => ({
         gdFiles: [...acc.gdFiles, ...curr.gdFiles],
-        tscnFiles: [...acc.tscnFiles, ...curr.tscnFiles]
-    }), { gdFiles: [], tscnFiles: [] })
+        tscnFiles: [...acc.tscnFiles, ...curr.tscnFiles],
+        importFiles: [...acc.importFiles, ...curr.importFiles]
+    }), { gdFiles: [], tscnFiles: [], importFiles: [] })
 }
 
 export const writeFileLines = async (filePath: string, lines: string[], logger: Logger): Promise<void> => {
