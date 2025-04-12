@@ -5,7 +5,7 @@
 <div align="center">
   <p><s>Symlink management</s></p>
   <p>Development and Release zip management</p>
-  <p><s>Automatic <code>.import</code> resource management</s></p>
+  <p>Automatic <code>.import</code> resource management</p>
   <p>Use <code>class_name</code> on your classes!</p>
 </div>
 </p>
@@ -19,6 +19,7 @@ where &lt;subcommand&gt; can be one of:
 
 - dev - Build a development zip
 - release - Build a release zip
+- gather - Gather resource imports
 - strip - Strip type-annotations & class_name from GDScript files
 - zip - Create a zip file from path
 
@@ -61,6 +62,7 @@ Build a release zip.
 - `--from` - Where the mod files are
 - `--to` - Where the zip should go
 - `--name` - The mod folder name
+- `--project` - Path to Godot project, enables resource import gathering
 - `--dry-run` - Pretend only
 - `--keep` - Keep the build directory
 - `--temp-dir` - Where to build
@@ -77,6 +79,17 @@ The development zip only contains `_metadata` and `ModMain.gd`.
 - `--dry-run` - Pretend only
 - `--keep` - Keep the build directory
 - `--temp-dir` - Where to build
+
+### bustle gather
+
+Gather resource imports.
+
+This will copy the `.stex` files named by the `.import` files of multimedia resources in your mod to the destination.
+
+- `--from` - Where the mod files are
+- `--to` - Where the .import files should go
+- `--project` - Path to Godot project
+- `--dry-run` - Pretend only
 
 ### bustle strip
 
@@ -175,7 +188,7 @@ This will perform the following steps:
 
 1. Copy the mod files from `mod` to a temporary directory
 2. Strip type-annotations & class_name from GDScript files
-3. Copy all your `.*.import` files to the temporary directory
+3. Copy all your `*.import` files to the temporary directory
 4. Create a zip file from the temporary directory
 5. Copy the zip file to the destination
 6. Delete the temporary directory
@@ -195,6 +208,7 @@ You can use a `bustle.json` file in the root of your mod repository to store you
         "args": {
             "from": "mod",
             "to": "../../mods",
+            "project": "../MyModGodotProject",
             "name": "MyMod"
         }
     },
@@ -212,6 +226,12 @@ You can use a `bustle.json` file in the root of your mod repository to store you
 Now you can run just `bustle release` or `bustle dev`.
 
 Hopefully the format is self-explanatory.
+
+# What does `bustle gather` do?
+
+Anytime you add a multimedia resource to your mod, like audio or textures, Godot creates a `.import` file next to it. This `.import` file contains a path to a cached indexed version of the resource ending in `.stex`.
+
+When the game loads your mod, it loads much faster if these indexed versions are available. This command copies the `.stex` files named by the `.import` files of multimedia resources in your mod to the destination.
 
 # What does `bustle strip` do?
 
