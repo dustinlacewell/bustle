@@ -62,6 +62,7 @@ Build a release zip.
 - `--from` - Where the mod files are
 - `--to` - Where the zip should go
 - `--name` - The mod folder name
+- `--importsIn` - Where in the zip imports should be copied (.import/ by default)
 - `--project` - Path to Godot project, enables resource import gathering
 - `--dry-run` - Pretend only
 - `--keep` - Keep the build directory
@@ -88,6 +89,7 @@ This will copy the `.stex` files named by the `.import` files of multimedia reso
 
 - `--from` - Where the mod files are
 - `--to` - Where the .import files should go
+- `--in` - Relative path for .import files
 - `--project` - Path to Godot project
 - `--dry-run` - Pretend only
 
