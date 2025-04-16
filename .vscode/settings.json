@@ -1,0 +1,12 @@
+{
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always",
+        "source.removeUnusedImports": "always",
+        "source.removeUnused.ts": "always"
+    },
+    "eslint.validate": [
+        "typescript"
+    ]
+}

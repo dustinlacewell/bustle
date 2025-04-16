@@ -28,7 +28,5 @@ npx postject bustle.exe NODE_SEA_BLOB sea-prep.blob \
 
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "..\\..\\bin\\win-installer.iss" && \
 
-mv YOMI-Bustle-Installer.exe ../dist/win/ && \
-
 echo "Done."
 

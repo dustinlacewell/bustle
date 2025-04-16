@@ -1,0 +1,62 @@
+extends "res://Foo/Bar/src/Bar.gd"
+
+# Single-line parameters
+def foo(bar: Baz, baz: int):
+    pass
+
+def bar(x: int, y: int = 10):
+    pass
+
+# This one uses "Foo"
+def baz(a: Foo, b, c: String = "Foo") -> Foo:
+    pass
+
+# Multi-line parameters
+def multi(
+    foo: Bar,
+    bar: Baz = 5,
+    baz: int = 6
+) -> int:
+    pass
+
+def mixed(
+    x: int,
+    y: Baz,
+    z = 42
+):
+    pass
+
+# Indented multi-line
+    def indented(
+        a: Baz,
+        b = 1,
+        c: int = 2
+    ) ->  Bar:
+        pass
+
+# Edge cases
+def empty():
+    pass
+
+def no_types(a, b, c):
+    pass
+
+var foo: Bar = bizbaz()
+
+var bar: Bar = Bar.new()
+
+# Variable declarations with onready and const
+onready var ready_var: Bar = get_node("/root/Baz")
+const CONST_VAL: Foo = 42
+onready var another: Baz
+const ANOTHER_CONST: int = 99
+
+class Barrro:
+
+    var x: int
+    var y: int = 42
+    
+    var poop: Bar = bizbaz()
+
+    func _init(x: int, y: int = 42, poop: Bar = bizbaz()) -> Foo:
+        pass

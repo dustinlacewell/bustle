@@ -1,0 +1,19 @@
+This is a modding CLI tool for GDScript / Godot.
+
+1. Author prefers maximally decomposed code.
+   If there are functions, with nested blocks, each block
+   should be moved into its own function. This should be
+   done even if the new function is only called once. It should
+   be done recursively. The goal is to read short compositions
+   of simple functions at all levels.
+
+2. Strict typing is not optional.
+
+3. Iterate until the task is complete.
+
+4. ClassNames, fieldNames, functionNames, methodNames, parameter_name, local_var
+
+5. Refrain from over-explaining, be as concise as possible except for when actively
+   prompted for detail by the author.
+
+6. Relative imports need the .js extension

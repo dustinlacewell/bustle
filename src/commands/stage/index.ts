@@ -1,32 +1,32 @@
 import { command } from "cmd-ts"
 
 import { BustleConfig } from "@/lib/config.js"
-import { gatherImports } from "@/lib/imports.js"
 import { Logger } from "@/lib/logger.js"
+import { _stageRelease } from "@/lib/staging.js"
 
-import { buildDir, dryRun, gatherDir, godotDir, modDir, modName, verbose } from "../args.js"
+import { buildDir, dryRun, include, modDir, modName, optimized, verbose } from "../args.js"
 
-export const gather = command({
-    name: "gather",
-    description: "Gather resource imports",
+export const stage = command({
+    name: "stage",
+    description: `Prepare a build directory`,
     args: {
         modName,
         modDir,
         buildDir,
-        gatherDir,
-        godotDir,
+        optimized,
+        include,
         dryRun,
         verbose
     },
-    handler: async ({ modName, modDir, buildDir, gatherDir, godotDir, dryRun, verbose }) => {
+    handler: async ({ modName, modDir, buildDir, optimized, include, dryRun, verbose }) => {
         try {
             const logger = new Logger(dryRun, verbose)
-            await gatherImports(
+            return _stageRelease(
                 modName,
                 modDir,
                 buildDir,
-                gatherDir,
-                godotDir,
+                optimized,
+                include,
                 logger
             )
         }
@@ -37,13 +37,13 @@ export const gather = command({
     }
 })
 
-export const _gather = async (config: BustleConfig, logger: Logger) => {
-    await gatherImports(
+export const _stage = async (config: BustleConfig, logger: Logger) => {
+    await _stageRelease(
         config.modName,
         config.modDir,
         config.buildDir,
-        config.gather === null ? ".import" : config.gather,
-        config.godotDir,
+        config.optimized,
+        config.include,
         logger
     )
 }

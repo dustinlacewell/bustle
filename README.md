@@ -3,10 +3,10 @@
 <p align="center">
 <h1 align="center">YOMI Hustle Mod Build Tool</h1>
 <div align="center">
-  <p><s>Symlink management</s></p>
-  <p>Development and Release zip management</p>
-  <p>Automatic <code>.import</code> resource management</p>
-  <p>Use <code>class_name</code> on your classes!</p>
+  <p>Use <code>class_name</code> in your mod!</p>
+  <p>Builds your dev and release zips!</p>
+  <p>Symlinks your mod to the Godot project!</p>
+  <p>Manages your <code>.import</code> files!</p>
 </div>
 </p>
 
@@ -19,9 +19,9 @@ where &lt;subcommand&gt; can be one of:
 
 - dev - Build a development zip
 - release - Build a release zip
+- link - Link your mod to your Godot project
 - gather - Gather resource imports
-- strip - Strip type-annotations & class_name from GDScript files
-- zip - Create a zip file from path
+- zip - Zip a directory
 
 For more help, try running `bustle &lt;subcommand&gt; --help`
 </pre>
@@ -45,13 +45,115 @@ Clone or download this repository and then:
 
     npm i -g
 
+# Quick Start
+
+Configure Bustle by creating a `bustle.json` file in the root of your mod repository:
+
+```
+MyMod/
+├── mod/          // Your actual mod files
+├── bustle.json   // Bustle configuration
+├── README.txt
+└── ...
+```
+
+Tell Bustle all about your mod.  All paths must be relative to `bustle.json`:
+
+```json
+{
+    // These are REQUIRED:
+    "modName": "MyMod",            // The name of your mod
+    "modDir": "mod",               // Directory containing your mod files
+    "godotDir": "../GodotDecomp",  // Your decompiled YOMIH Godot project
+    "buildDir": "build",           // Temp directory to perform the build in
+    "putDevIn": "../mods",         // Your Godot editor mods/ directory
+    "putReleaseIn": "../../mods",  // Your Steam YOMIH mods/ directory
+    // These are optional:
+    "strip": true,                 // Whether to strip your script class names
+    "gather": ".import",           // Whether/where to gather resource imports
+    "cleanup": true,               // Whether remove build directory after build
+    "optimized": true,             // Whether to omit resource sources
+    "include": ["*.import"],       // Import resources to include in optimized builds
+    "dryRun": false                // Only pretend to do things
+}
+```
+
+Link your `mod/` directory to your Godot project:
+
+```bash
+$ bustle link
+[ACTION] Creating symlink: ..\GodotDecomp\MyMod -> mod
+```
+
+Create a development zip so ModLoader loads your mod in Godot:
+
+```bash
+$ bustle dev
+bustle dev
+[ACTION] Ensuring directory exists: build\MyMod
+[ACTION] Copying mod\ModMain.gd to build\MyMod\ModMain.gd
+[ACTION] Copying metadata from mod\_metadata to build\MyMod\_metadata
+[ACTION] Creating zip archive: ..\mods\MyMod.zip from build
+[ACTION] Adding folder: MyMod
+[ACTION] Writing zip file: ..\mods\MyMod.zip
+```
+
+Work on your mod. When you're ready, build a release zip to test against retail Steam version of YOMI Hustle:
+
+```bash
+$ bustle release
+[ACTION] Removing directory: build
+[ACTION] Ensuring directory exists: build\MyMod
+[ACTION] Copying files from mod to build\MyMod
+[INFO] Loaded import file: mod\character.png.import
+[INFO] Stripping scripts from build\MyMod to build
+[ACTION] Stripping file: build\MyMod\ModMain.gd
+[ACTION] Stripping file: build\MyMod\MyCoolClass.gd
+
+...
+
+[ACTION] Creating zip archive: ..\..\mods\MyMod.zip from build
+[ACTION] Adding folder: MyMod
+[ACTION] Writing zip file: ..\..\mods\MyMod.zip
+```
+
 # Usage
 
 `bustle` is a command-line tool run from the terminal:
 
     bustle <subcommand>
 
-Using it involes invoking one of its subcommands.
+## With `bustle.json`
+
+If you have a `bustle.json` file, just run the following commands:
+
+- `bustle dev` - Build a development zip
+- `bustle release` - Build a release zip
+- `bustle link` - Link your mod to your Godot project
+- `bustle gather` - Gather resource imports
+
+Bustle will use the values from `bustle.json` to run the commands.
+
+## Options and Flags
+
+Commands can be run with options and flags to modify their behavior.
+
+Options are specified with an accompanying value:  `--option <value>` 
+
+While flags are specified without a value: `--flag`
+
+### Universal Flags
+
+- `--dry-run` - *Show what would be done without making changes*
+- `--verbose` - *Show verbose output*
+
+### Required Options
+
+Options with a bold description are required.
+
+Options with an italic description are optional.
+
+Options with an `*` can be specified multiple times.
 
 ## Subcommands
 
@@ -59,27 +161,43 @@ Using it involes invoking one of its subcommands.
 
 Build a release zip.
 
-- `--from` - Where the mod files are
-- `--to` - Where the zip should go
-- `--name` - The mod folder name
-- `--importsIn` - Where in the zip imports should be copied (.import/ by default)
-- `--project` - Path to Godot project, enables resource import gathering
-- `--dry-run` - Pretend only
-- `--keep` - Keep the build directory
-- `--temp-dir` - Where to build
+The overall process is:
+- Copy your mod files to the build directory
+- Strip class names from scripts
+- Gather resource imports
+- Create a zip archive
+- Clean up the build directory
+
+**OPTIONS**:
+- `--mod-name` - **The name of your mod**
+- `--mod-dir` - **Directory containing your mod files**
+- `--godot-dir` - **Your Godot project directory**
+- `--build-dir` - *Where to perform the build*
+- `--put-release-in` - *Where to put the release zip file*
+- `--gather-dir` - *Directory relative to build-dir to put imports in*
+- `--include`* - *Import resources to include in optimized builds*
+
+**FLAGS**:
+- `--optimized` - *Don't include imported resources in the zip file*
+- `--strip` - *Whether to strip your class names from GDScript files*
+- `--dry-run` - *Show what would be done without making changes*
+- `--cleanup` - *Delete the build directory after build*
 
 ### bustle dev
 
 Build a development zip.
 
-The development zip only contains `_metadata` and `ModMain.gd`.
+The development zip only contains `_metadata` and `ModMain.gd`. This is to trick ModLoader into recognizing your mod. Even though the rest of your mod files are in the Godot project, ModLoader will only recognize the mod if it can find your `ModMain.gd` and `_metadata` files inside a zip in the `mods/` folder.
 
-- `--from` - Where the mod files are
-- `--to` - Where the zip should go
-- `--name` - The mod folder name
-- `--dry-run` - Pretend only
-- `--keep` - Keep the build directory
-- `--temp-dir` - Where to build
+**OPTIONS**:
+- `--mod-name` - **The name of your mod**
+- `--mod-dir` - **Directory containing your mod files**
+- `--build-dir` - *Where to perform the build*
+- `--put-dev-in` - *Where to put the development zip file*
+
+**FLAGS**:
+- `--dry-run` - *Show what would be done without making changes*
+- `--cleanup` - *Delete the build directory after build*
 
 ### bustle gather
 
@@ -87,28 +205,42 @@ Gather resource imports.
 
 This will copy the `.stex` files named by the `.import` files of multimedia resources in your mod to the destination.
 
-- `--from` - Where the mod files are
-- `--to` - Where the .import files should go
-- `--in` - Relative path for .import files
-- `--project` - Path to Godot project
-- `--dry-run` - Pretend only
+**OPTIONS**:
+- `--mod-name` - **The name of your mod**
+- `--mod-dir` - **Directory containing your mod files**
+- `--build-dir` - *Where to perform the build*
+- `--gather-dir` - *Directory relative to build-dir to put imports in*
+- `--godot-dir` - *Your Godot project directory*
 
-### bustle strip
+**FLAGS**:
+- `--dry-run` - *Show what would be done without making changes*
 
-Strip type-annotations & class_name from GDScript files.
+## bustle link
 
-- `--from` - Where the mod files are
-- `--to` - Where the stripped files should go
-- `--dry-run` - Pretend only
+Link your mod to your Godot project.
+
+This will create a symlink from the Godot project to your mod directory 
+
+For example: `mod/` -> `../GodotDecomp/MyMod/`.
+
+**OPTIONS**:
+- `--mod-name` - **The name of your mod**
+- `--mod-dir` - **Directory containing your mod files**
+- `--godot-dir` - **Your Godot project directory**
+
+**FLAGS**:
+- `--dry-run` - *Show what would be done without making changes*
 
 ### bustle zip
 
-Create a zip file from path.
+Zip a directory.
 
-- `--from` - Where the files are
-- `--to` - Where the zip should go
-- `--dry-run` - Pretend only
+**OPTIONS**:
+- `--from` - **Source directory**
+- `--to` - **Destination file**
 
+**FLAGS**:
+- `--dry-run` - *Show what would be done without making changes*
 
 # User Guide
 
@@ -131,13 +263,12 @@ In there, I have:
     moddev
     ├── MyModRepo
     │   ├── README.md
-    │   ├── bin
     │   ├── bustle.json
     │   └── mod
     │       ├── _metadata
     │       ├── ModMain.gd
-    │       └── src
-    ├── MyModGodotProject
+    │       └── src/
+    ├── GodotDecomp
     │   ├── MyMod -> ../MyModRepo/mod
     ├── editor_data
     ├── gdre_tools.exe
@@ -153,81 +284,75 @@ In there, I have:
 You can see there are the decompilation tools, Godot editor binaries, the Godot editor's `mods/` folder and:
 
 - `MyModRepo` - Your mod repository
-- `MyModGodotProject` - Your mod's Godot project
-- `MyModGodotProject/MyMod` - A symlink to `MyModRepo/mod`
+- `GodotDecomp` - Your mod's Godot project
+- `GodotDecomp/MyMod` - A symlink to `MyModRepo/mod`
 
-## Symlinking Your Mod
+## Adding `bustle.json`
 
-Notice that my mod is in `MyModRepo/mod`. That means I can't just put `MyModRepo` into the Godot project. But by symlinking `MyModGodotProject/MyMod/` to `MyModRepo/mod`, there is no problem.
-
-
-## Development Workflow
-
-It would suck if you had to rebuild the mod zip every time you made a change.
-
-Luckily, a zip containing only `_metadata` and `ModMain.gd` is all that is needed to trick Godot into recognizing your mod. As long as the rest of your mod files are in `MyModGodotProject/MyMod/`, everything just works out.
-
-So, once you have copied or symlinked your mod files into `MyModGodotProject/MyMod/`, you can use `bustle dev` to build a development zip:
-
-From inside your project:
-```bash
-bustle dev --from mod --to ../mods/ --name MyMod
-```
-
-**TIP** - *You can add the `--dry-run` flag to see what would be done without making changes.*
-
-## Release Workflow
-
-Bustle makes building a release zip a breeze:
-
-From inside your project:
-```bash
-bustle release --from mod --to ../../mods/ --name MyMod
-```
-**TIP** - *You can add the `--dry-run` flag to see what would be done without making changes.*
-
-This will perform the following steps:
-
-1. Copy the mod files from `mod` to a temporary directory
-2. Strip type-annotations & class_name from GDScript files
-3. Copy all your `*.import` files to the temporary directory
-4. Create a zip file from the temporary directory
-5. Copy the zip file to the destination
-6. Delete the temporary directory
-
-**TIP** - *You can add the `--keep` flag to keep the temporary directory after build.*
-
-This can be a useful way to test your mod against the retail version of YOMI Hustle.
-
-## Using `bustle.json`
-
-You can use a `bustle.json` file in the root of your mod repository to store your commands as aliases:
+A `bustle.json` file tells Bustle everything it needs to know to build your mod.
 
 ```json
 {
-    "release": {
-        "name": "release",
-        "args": {
-            "from": "mod",
-            "to": "../../mods",
-            "project": "../MyModGodotProject",
-            "name": "MyMod"
-        }
-    },
-    "dev": {
-        "name": "dev",
-        "args": {
-            "from": "mod",
-            "to": "../mods",
-            "name": "MyMod"
-        }
-    }
+    "modName": "MyMod",
+    "modDir": "mod",
+    "godotDir": "../GodotDecomp",
+    "putDevIn": "../mods",
+    "putReleaseIn": "../../mods"
 }
 ```
 
-Now you can run just `bustle release` or `bustle dev`.
+## Symlinking Your Mod
 
-Hopefully the format is self-explanatory.
+Creating a symlink from the Godot project to your mod directory allows you to:
+- Keep your projects seperate from the Godot project.
+- Seperate your README and other files from your actual mod files by keeping your mod files in a subdirectory.
+
+```
+MyModRepo
+    ├── README.md
+    ├── bustle.json
+    └── mod
+        ├── _metadata
+        ├── ModMain.gd
+        └── CoolClass.gd
+```
+
+Since you created a `bustle.json`, to symlink your mod, you can use `bustle link`:
+
+```bash
+$ bustle link
+```
+
+## Creating a Development Zip
+
+Once you have copied or symlinked your mod files into `GodotDecomp/MyMod/`, you can use `bustle dev` to build a development zip:
+
+```bash
+$ bustle dev
+```
+
+## Working on your mod
+
+- [x] Create a `bustle.json`
+- [x] Symlinked your mod into the Godot project
+- [x] Built a dev zip in Godot editor's `mods/` folder
+
+At this point the Godot editor and ModLoader will recognize and load our mod.
+
+So get to work!
+
+## Building a release
+
+Once you're happy with your mod, build a release zip:
+
+```bash
+$ bustle release
+```
+
+That will put a zip file in the `mods/` folder of your Steam YOMI Hustle installation.
+
+Go test it out! If it's good, you can upload it to the Steam Workshop!
+
 
 # What does `bustle gather` do?
 
@@ -235,7 +360,7 @@ Anytime you add a multimedia resource to your mod, like audio or textures, Godot
 
 When the game loads your mod, it loads much faster if these indexed versions are available. This command copies the `.stex` files named by the `.import` files of multimedia resources in your mod to the destination.
 
-# What does `bustle strip` do?
+# What does stripping class names do?
 
 One of the most significant limitations of the ModLoader / Godot modding is that you cannot utilize `class_name` to give your classes a name.
 

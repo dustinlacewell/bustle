@@ -1,27 +1,46 @@
-import * as fs from 'fs/promises'
-import * as path from 'path'
-import { Logger } from '@/lib/logger.js'
-import { ensureDir } from './fs-utils.js'
+import * as fs from "fs/promises"
+import * as path from "path"
+
+import { Logger } from "@/lib/logger.js"
+
+import { copyFilesRecursively, ensureDir, removeDir } from "./fs-utils.js"
+import { extractImportSources, ImportMetadata, loadImports } from "./imports.js"
+import { checkDestSafety } from "./path-utils.js"
+
+export async function _stageRelease(
+    modName: string,
+    modDir: string,
+    buildDir: string,
+    optimized: boolean,
+    include: string[],
+    logger: Logger
+): Promise<void> {
+    checkDestSafety(modDir, buildDir, ["modDir", "buildDir"])
+    await removeDir(buildDir, logger)
+
+    const ignore: string[] = []
+    let imports: ImportMetadata[] = []
+
+    if (optimized) {
+        imports = await loadImports(modDir, logger)
+        const sourcePaths = extractImportSources(imports)
+        sourcePaths.filter(p => !include.includes(p))
+            .forEach(p => ignore.push(p))
+    }
+
+    for (const file of ignore) {
+        logger.info(`Ignoring ${file}`)
+    }
+
+    const modBuildPath = path.join(buildDir, modName)
+    await ensureDir(modBuildPath, logger)
+    await copyFilesRecursively(modDir, modBuildPath, ignore, logger)
+}
 
 export async function cleanupTempDir(buildDir: string, logger: Logger): Promise<void> {
     logger.action(`Cleaning up staging directory: ${buildDir}`)
     if (!logger.dryRun) {
         await fs.rm(buildDir, { recursive: true, force: true })
-    }
-}
-
-export async function moveZipToDestination(from: string, to: string, logger: Logger): Promise<void> {
-    const originalZipName = path.basename(from)
-    const finalDestPath = (await fs.stat(to).catch(() => null))?.isDirectory() 
-        ? path.join(to, originalZipName)
-        : to
-
-    logger.action(`Moving zip from ${from} to ${finalDestPath}`)
-
-    if (!logger.dryRun) {
-        // Ensure the destination directory exists
-        await fs.mkdir(path.dirname(finalDestPath), { recursive: true })
-        await fs.copyFile(from, finalDestPath)
     }
 }
 
@@ -33,19 +52,19 @@ export async function copyZipToDestination(zipPath: string, destPath: string, lo
     }
 }
 
-export async function copyMetadata(sourceDir: string, buildDir: string, logger: Logger): Promise<void> {
-    const metadataSource = path.join(sourceDir, '_metadata')
-    const metadataDest = path.join(buildDir, '_metadata')
-    
+export async function copyMetadata(modDir: string, buildDir: string, logger: Logger): Promise<void> {
+    const metadataSource = path.join(modDir, "_metadata")
+    const metadataDest = path.join(buildDir, "_metadata")
+
     logger.action(`Copying metadata from ${metadataSource} to ${metadataDest}`)
     if (!logger.dryRun) {
         await fs.cp(metadataSource, metadataDest, { recursive: true })
     }
 }
 
-export async function copyModMain(from: string, buildDir: string, logger: Logger): Promise<void> {
-    const mainSource = path.join(from, 'ModMain.gd')
-    const mainDest = path.join(buildDir, 'ModMain.gd')
+export async function copyModMain(modDir: string, buildDir: string, logger: Logger): Promise<void> {
+    const mainSource = path.join(modDir, "ModMain.gd")
+    const mainDest = path.join(buildDir, "ModMain.gd")
 
     logger.action(`Copying ${mainSource} to ${mainDest}`)
     if (!logger.dryRun) {
@@ -53,13 +72,14 @@ export async function copyModMain(from: string, buildDir: string, logger: Logger
     }
 }
 
-export async function copyDevFiles(from: string, buildDir: string, logger: Logger): Promise<void> {
+export async function copyDevFiles(modName: string, modDir: string, buildDir: string, logger: Logger): Promise<void> {
     // Ensure the staging directory exists
-    await fs.mkdir(buildDir, { recursive: true })
+    const destPath = path.join(buildDir, modName)
+    await ensureDir(destPath, logger)
 
     // Copy ModMain.gd
-    await copyModMain(from, buildDir, logger)
+    await copyModMain(modDir, destPath, logger)
 
     // Copy _metadata directory
-    await copyMetadata(from, buildDir, logger)
+    await copyMetadata(modDir, destPath, logger)
 }

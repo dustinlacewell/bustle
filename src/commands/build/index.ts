@@ -1,59 +1,89 @@
-import { command, option, string, flag } from 'cmd-ts';
-import { buildMod } from "./buildMod.js";
+import { command } from "cmd-ts"
 
+import {
+    buildDir,
+    cleanup,
+    dryRun,
+    gatherDir,
+    godotDir,
+    include,
+    modDir,
+    modName,
+    optimized,
+    putReleaseIn,
+    strip,
+    verbose
+} from "@/commands/args.js"
+import { BustleConfig } from "@/lib/config.js"
+import { Logger } from "@/lib/logger.js"
+
+import { buildMod } from "./buildMod.js"
 
 export const build = command({
-    name: 'release',
-    description: `Build, strip and package a mod zip for release`,
+    name: "release",
+    description: `Build a release zip`,
     args: {
-        from: option({
-            type: string,
-            long: 'from',
-            description: 'Source directory containing mod files'
-        }),
-        to: option({
-            type: string,
-            long: 'to',
-            description: 'Destination path for the mod zip file (C:\\my\\mod.zip)'
-        }),
-        importsIn: option({
-            type: string,
-            long: 'importsIn',
-            description: 'The subdirectory to place resource imports in',
-            defaultValue: () => '.import'
-        }),
-        name: option({
-            type: string,
-            long: 'name',
-            description: 'Name of mod folder'
-        }),
-        project: option({
-            type: string,
-            long: 'project',
-            description: 'Path to Godot project, enables resource import gathering',
-            defaultValue: () => ""
-        }),
-        dryRun: flag({
-            long: 'dry-run',
-            description: 'Show what would be done without making changes'
-        }),
-        keep: flag({
-            long: 'keep',
-            description: 'Keep the temporary directory after build'
-        }),
-        tempDir: option({
-            type: string,
-            long: 'temp-dir',
-            description: 'Temporary directory for build process',
-            defaultValue: () => 'dist'
-        })
+        modName,
+        modDir,
+        godotDir,
+        buildDir,
+        putReleaseIn,
+        gatherDir,
+        optimized,
+        strip,
+        include,
+        dryRun,
+        cleanup,
+        verbose
     },
-    handler: async (args) => {
+    handler: async ({
+        modName,
+        modDir,
+        godotDir,
+        buildDir,
+        putReleaseIn,
+        gatherDir,
+        optimized,
+        strip,
+        include,
+        dryRun,
+        cleanup,
+        verbose
+    }) => {
         try {
-            await buildMod(args)
-        } catch (error) {
-            console.error('Error:', error instanceof Error ? error.message : error)
+            const logger = new Logger(dryRun, verbose)
+            await buildMod(
+                modName,
+                modDir,
+                godotDir,
+                buildDir,
+                putReleaseIn,
+                gatherDir,
+                optimized,
+                strip,
+                include,
+                cleanup,
+                logger)
+        }
+        catch (error) {
+            console.error("Error:", error instanceof Error ? error.message : error)
             process.exit(1)
         }
     }
-});
+})
+
+export const _build = async (config: BustleConfig, logger: Logger) => {
+    await buildMod(
+        config.modName,
+        config.modDir,
+        config.godotDir,
+        config.buildDir,
+        config.putReleaseIn,
+        config.gather,
+        config.optimized,
+        config.strip,
+        config.include,
+        config.cleanup,
+        logger
+    )
+}

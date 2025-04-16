@@ -1,29 +1,72 @@
-import { copyMetadata, copyModMain } from "@/lib/staging.js"
-import { stripMod } from "../strip/stripMod.js"
-import { build, BuildPackageOptions } from "@/lib/build.js"
 import path from "path"
-import { gather_imports } from "../gather/gatherImports.js"
 
-export type BuildOptions = {
-    project: string
-    importsIn: string
-} & BuildPackageOptions
+import { rm } from "@/lib/fs-utils.js"
+import { gatherImports } from "@/lib/imports.js"
+import { Logger } from "@/lib/logger.js"
+import { checkDestSafety } from "@/lib/path-utils.js"
+import { _stageRelease } from "@/lib/staging.js"
+import { stripScripts } from "@/lib/transforms/index.js"
 
-export async function buildMod(options: BuildOptions): Promise<void> {
-    return build(options, async (logger) => {
-        await stripMod({
-            from: options.from,
-            to: path.join(options.tempDir, options.name),
-            dryRun: options.dryRun
-        })
-        if (options.project != "") {
-            await gather_imports({
-                from: options.from,
-                to: options.tempDir,
-                in: options.importsIn,
-                project: options.project,
-                dryRun: options.dryRun
-            })
-        }
-    })
+import { createModZip } from "../zip/createModZip.js"
+
+export async function buildMod(
+    modName: string,
+    modDir: string,
+    godotDir: string,
+    buildDir: string,
+    putReleaseIn: string,
+    gatherDir: string | null,
+    optimized: boolean,
+    strip: boolean,
+    include: string[],
+    cleanup: boolean,
+    logger: Logger
+) {
+    checkDestSafety(modDir, buildDir, ["modDir", "buildDir"])
+    checkDestSafety(modDir, putReleaseIn, ["modDir", "putReleaseIn"])
+    if (gatherDir !== null)
+        checkDestSafety(modDir, path.join(buildDir, gatherDir), ["modDir", "buildDir", "gatherDir"])
+
+    await _stageRelease(
+        modName,
+        modDir,
+        buildDir,
+        optimized,
+        include,
+        logger
+    )
+
+    if (gatherDir !== null) {
+        await gatherImports(
+            modName,
+            modDir,
+            buildDir,
+            gatherDir,
+            godotDir,
+            logger
+        )
+    }
+
+    const sourceDir = path.join(buildDir, modName)
+    checkDestSafety(modDir, sourceDir, ["modDir", "buildDir"])
+    if (strip) {
+        await stripScripts(
+            modName,
+            sourceDir,
+            buildDir,
+            logger
+        )
+    }
+
+    const zipPath = path.join(putReleaseIn, `${modName}.zip`)
+    checkDestSafety(modDir, zipPath, ["modDir", "putReleaseIn"])
+    await createModZip(
+        buildDir,
+        zipPath,
+        logger
+    )
+
+    if (cleanup) {
+        await rm(buildDir, true, logger)
+    }
 }

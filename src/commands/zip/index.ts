@@ -1,31 +1,48 @@
-import { command, option, string, flag } from 'cmd-ts';
-import { createModZip } from './createModZip.js';
+import { command, option, string } from "cmd-ts"
+import path from "path"
+
+import { BustleConfig } from "@/lib/config.js"
+import { Logger } from "@/lib/logger.js"
+import { checkDestSafety } from "@/lib/path-utils.js"
+
+import { dryRun } from "../args.js"
+import { createModZip } from "./createModZip.js"
 
 export const zip = command({
-    name: 'zip',
-    description: 'Create a mod zip file',
+    name: "zip",
+    description: "Zip a directory",
     args: {
         from: option({
             type: string,
-            long: 'from',
-            description: 'Root directory containing mod files'
+            long: "from",
+            description: "Source directory"
         }),
         to: option({
             type: string,
-            long: 'to',
-            description: 'Destination path of mod zip file (C:\\my\\mod.zip)',
+            long: "to",
+            description: "Destination file"
         }),
-        dryRun: flag({
-            long: 'dry-run',
-            description: 'Show what would be done without making changes'
-        })
+        dryRun
     },
-    handler: async (args) => {
+    handler: async ({ from, to, dryRun }) => {
         try {
-            await createModZip(args)
-        } catch (error) {
-            console.error('Error:', error instanceof Error ? error.message : error)
+            checkDestSafety(from, to, ["from", "to"])
+            const logger = new Logger(dryRun)
+            await createModZip(from, to, logger)
+        }
+        catch (error) {
+            console.error("Error:", error instanceof Error ? error.message : error)
             process.exit(1)
         }
     }
-});
+})
+
+export const _zip = async (config: BustleConfig, logger: Logger) => {
+    const destFile = path.join(config.putReleaseIn, `${config.modName}.zip`)
+    checkDestSafety(config.modDir, destFile, ["modDir", "putReleaseIn"])
+    await createModZip(
+        config.buildDir,
+        destFile,
+        logger
+    )
+}

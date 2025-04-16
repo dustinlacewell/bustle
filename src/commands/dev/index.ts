@@ -1,46 +1,44 @@
-import { command, option, string, flag } from 'cmd-ts';
-import { buildDevMod } from './buildDevMod.js';
+import { command } from "cmd-ts"
+
+import { BustleConfig } from "@/lib/config.js"
+import { Logger } from "@/lib/logger.js"
+
+import { buildDir, cleanup, dryRun, modDir, modName, putDevIn, verbose } from "../args.js"
+import { buildDevMod } from "./buildDevMod.js"
 
 export const dev = command({
-    name: 'dev',
+    name: "dev",
     description: `Build a development zip`,
     args: {
-        from: option({
-            type: string,
-            long: 'from',
-            description: 'Where your mod files are'
-        }),
-        to: option({
-            type: string,
-            long: 'to',
-            description: 'Where to put the zip file'
-        }),
-        name: option({
-            type: string,
-            long: 'name',
-            description: 'Name of mod folder'
-        }),
-        dryRun: flag({
-            long: 'dry-run',
-            description: 'Show what would be done without making changes'
-        }),
-        keep: flag({
-            long: 'keep',
-            description: 'Keep the temporary directory after build'
-        }),
-        tempDir: option({
-            type: string,
-            long: 'temp-dir',
-            description: 'Temporary directory for build process',
-            defaultValue: () => 'dist'
-        })
+        modName,
+        modDir,
+        buildDir,
+        putDevIn,
+        dryRun,
+        cleanup,
+        verbose
     },
-    handler: async (args) => {
+    handler: async ({
+        modName,
+        modDir,
+        buildDir,
+        putDevIn,
+        dryRun,
+        cleanup,
+        verbose
+    }) => {
         try {
-            await buildDevMod(args)
-        } catch (error) {
-            console.error('Error:', error instanceof Error ? error.message : error)
+            const logger = new Logger(dryRun, verbose)
+            await buildDevMod(modName, modDir, buildDir, putDevIn, cleanup, logger)
+        }
+        catch (error) {
+            console.error("Error:", error instanceof Error ? error.message : error)
             process.exit(1)
         }
     }
-});
+})
+
+export const _dev = async (config: BustleConfig, logger: Logger) => {
+    const { modName, modDir, buildDir, putDevIn, cleanup } = config
+    await buildDevMod(modName, modDir, buildDir, putDevIn, cleanup, logger)
+}

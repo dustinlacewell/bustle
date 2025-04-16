@@ -1,0 +1,59 @@
+# Single-line parameters
+def foo(bar, baz: int):
+    pass
+
+def bar(x: int, y: int = 10):
+    pass
+
+def baz(a: FooFEIJW, b, c: String = "hi") -> FooFEIJW:
+    pass
+
+# Multi-line parameters
+def multi(
+    foo,
+    bar = 5,
+    baz: int = 6
+) -> int:
+    pass
+
+def mixed(
+    x: int,
+    y,
+    z = 42
+):
+    pass
+
+# Indented multi-line
+    def indented(
+        a,
+        b = 1,
+        c: int = 2
+    ):
+        pass
+
+# Edge cases
+def empty():
+    pass
+
+def no_types(a, b, c):
+    pass
+
+var foo = bizbaz()
+
+var bar = Bar.new()
+
+# Variable declarations with onready and const
+onready var ready_var = get_node("/root/Baz")
+const CONST_VAL: FooFEIJW = 42
+onready var another
+const ANOTHER_CONST: int = 99
+
+class Barrro:
+
+    var x: int
+    var y: int = 42
+    
+    var poop = bizbaz()
+
+    func _init(x: int, y: int = 42, poop = bizbaz()) -> FooFEIJW:
+        pass

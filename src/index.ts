@@ -1,154 +1,87 @@
 #!/usr/bin/env node
-import { run, subcommands } from 'cmd-ts';
-import pkg from '../package.json' with { type: 'json' };
-import { strip } from './commands/strip/index.js';
-import { zip } from './commands/zip/index.js';
-import { build as release } from './commands/build/index.js';
-import { dev } from './commands/dev/index.js';
-import { readConfigFile } from './lib/config.js';
-import { gather } from './commands/gather/index.js';
+import { run, subcommands } from "cmd-ts"
 
+import pkg from "../package.json" with { type: "json" }
+import { _build, build as release } from "./commands/build/index.js"
+import { _dev, dev } from "./commands/dev/index.js"
+import { _gather, gather } from "./commands/gather/index.js"
+import { _link, link } from "./commands/link/index.js"
+import { _zip, zip } from "./commands/zip/index.js"
+import { readConfigFile } from "./lib/config.js"
+import { Logger } from "./lib/logger.js"
 
-async function handleAlias(arg: string): Promise<string[]> {
+async function execute() {
+    let args = process.argv.slice(2)
+    let dryRun = false
+    let verbose = false
 
-  if (["--help", "--version"].includes(arg)) {
-    return [arg]
-  }
-
-  try {
-    const config = await readConfigFile("bustle.json")
-    const command = config[arg];
-    if (command) {      
-      const args = []
-      switch (command.name) {
-        case 'release':
-          args.push('release');
-          if (command.args.from) {
-            args.push('--from', command.args.from);
-          }
-          if (command.args.to) {
-            args.push('--to', command.args.to);
-          }
-          if (command.args.importsIn) {
-            args.push('--importsIn', command.args.importsIn);
-          }
-          if (command.args.project) {
-            args.push('--project', command.args.project);
-          }
-          if (command.args.name) {
-            args.push('--name', command.args.name);
-          }
-          if (command.args.dryRun) {
-            args.push('--dry-run');
-          }
-          if (command.args.keep) {
-            args.push('--keep');
-          }
-          if (command.args.tempDir) {
-            args.push('--temp-dir', command.args.tempDir);
-          }
-          return args;
-        case 'dev':
-          args.push('dev');
-          if (command.args.from) {
-            args.push('--from', command.args.from);
-          }
-          if (command.args.to) {
-            args.push('--to', command.args.to);
-          }
-          if (command.args.name) {
-            args.push('--name', command.args.name);
-          }
-          if (command.args.dryRun) {
-            args.push('--dry-run');
-          }
-          if (command.args.keep) {
-            args.push('--keep');
-          }
-          if (command.args.tempDir) {
-            args.push('--temp-dir', command.args.tempDir);
-          }
-          return args;
-        case 'strip':
-          args.push('strip');
-          if (command.args.from) {
-            args.push('--from', command.args.from);
-          }
-          if (command.args.to) {
-            args.push('--to', command.args.to);
-          }
-          if (command.args.dryRun) {
-            args.push('--dry-run');
-          }
-          return args;
-        case 'zip':
-          args.push('zip');
-          if (command.args.from) {
-            args.push('--from', command.args.from);
-          }
-          if (command.args.to) {
-            args.push('--to', command.args.to);
-          }
-          if (command.args.name) {
-            args.push('--name', command.args.name);
-          }
-          if (command.args.dryRun) {
-            args.push('--dry-run');
-          }
-          return args
-        case 'gather':
-          args.push('gather');
-          if (command.args.from) {
-            args.push('--from', command.args.from);
-          }
-          if (command.args.to) {
-            args.push('--to', command.args.to);
-          }
-          if (command.args.in) {
-            args.push('--in', command.args.in);
-          }
-          if (command.args.project) {
-            args.push('--project', command.args.project);
-          }
-          if (command.args.dryRun) {
-            args.push('--dry-run');
-          }
-          return args
-        default:
-          console.error(`Unknown command in bustle.json: ${name}`);
-          process.exit(1);
-      }
+    if (args.includes("--dry-run")) {
+        dryRun = true
+        args = args.filter(a => a !== "--dry-run")
     }
-  } catch (error) {
-    console.error('Error reading bustle.json:', error);
-    process.exit(1);
-  }
 
-  return [arg];
+    if (args.includes("--verbose")) {
+        verbose = true
+        args = args.filter(a => a !== "--verbose")
+    }
+
+    if (args.length === 1 && args[0] !== "--help") {
+        const config = await readConfigFile()
+        const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
+        switch (args[0]) {
+            case "dev":
+                await _dev(config, logger)
+                return
+            case "release":
+                await _build(config, logger)
+                return
+            case "link":
+                _link(config, logger)
+                return
+            // case "stage":
+            //     await _stage(config, logger)
+            //     return
+            case "gather":
+                await _gather(config, logger)
+                return
+            // case "strip":
+            //     await _strip(config, logger)
+            //     return
+            case "zip":
+                await _zip(config, logger)
+                return
+            default:
+                console.error(`Unknown command: ${args[0]}`)
+                process.exit(1)
+        }
+    }
+
+    const app = subcommands({
+        name: "bustle",
+        description: "A build tool for YOMI Hustle mods",
+        version: pkg.version,
+        cmds: {
+            dev,
+            release,
+            link,
+            // stage,
+            gather,
+            // strip,
+            zip
+        }
+    })
+
+    return run(app, process.argv.slice(2))
 }
 
-async function main() {
-  var args = process.argv.slice(2)
-
-  if (args.length === 1) {
-    args = await handleAlias(args[0])
-  }
-
-  const app = subcommands({
-    name: 'bustle',
-    description: 'A build tool for YOMI Hustle mods',
-    version: pkg.version,
-    cmds: {
-      release,
-      dev,
-      gather,
-      strip,
-      zip
+const main = async () => {
+    try {
+        await execute()
     }
-  });
-
-  run(app, args);
-
+    catch (error) {
+        console.error("Error:", error instanceof Error ? error.message : error)
+        process.exit(1)
+    }
 }
 
-main()
+await main()
