@@ -19,7 +19,7 @@ export async function processImportFile(filePath: string) {
 export async function gather_imports(options: GatherOptions) {
     const logger = new Logger(options.dryRun ?? false)
     logger.info("Gathering import files...")
-    const { importFiles } = await getFilesRecursively(options.mod)
+    const { importFiles } = await getFilesRecursively(options.from)
     const results = await Promise.all(importFiles.map(processImportFile))
     const resources = results.flat()
     ensureDir(options.to, logger)

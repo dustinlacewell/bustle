@@ -1,5 +1,5 @@
 export interface GatherOptions {
-    mod: string
+    from: string
     to: string
     project: string
     dryRun?: boolean

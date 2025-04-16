@@ -93,6 +93,21 @@ async function handleAlias(arg: string): Promise<string[]> {
             args.push('--dry-run');
           }
           return args
+        case 'gather':
+          args.push('gather');
+          if (command.args.from) {
+            args.push('--from', command.args.from);
+          }
+          if (command.args.to) {
+            args.push('--to', command.args.to);
+          }
+          if (command.args.project) {
+            args.push('--project', command.args.project);
+          }
+          if (command.args.dryRun) {
+            args.push('--dry-run');
+          }
+          return args
         default:
           console.error(`Unknown command in bustle.json: ${name}`);
           process.exit(1);

@@ -28,6 +28,22 @@ const StripArgsType = type({
     'dryRun?': 'boolean'
 })
 
+// Gather command args type
+const GatherArgsType = type({
+    'from': 'string',
+    'to': 'string',
+    'project': 'string',
+    'dryRun?': 'boolean'
+})
+
+// Zip command args type
+const ZipArgsType = type({
+    'from': 'string',
+    'to': 'string',
+    'name': 'string',
+    'dryRun?': 'boolean'
+})
+
 export type BuildArgs = {
     from: string
     to: string
@@ -53,6 +69,13 @@ export type StripArgs = {
     dryRun?: boolean
 }
 
+export type GatherArgs = {
+    from: string
+    to: string
+    project: string
+    dryRun?: boolean
+}
+
 export type ZipArgs = {
     from: string
     to: string
@@ -73,6 +96,14 @@ const CommandConfigType = type.or(
     {
         name: '"strip"',
         args: StripArgsType
+    },
+    {
+        name: '"zip"',
+        args: ZipArgsType
+    },
+    {
+        name: '"gather"',
+        args: GatherArgsType
     }
 )
 
@@ -101,8 +132,13 @@ export type ZipConfig = {
     args: ZipArgs
 }
 
+export type GatherConfig = {
+    name: 'gather'
+    args: GatherArgs
+}
 
-export type CommandConfig = BuildConfig | DevConfig | StripConfig | ZipConfig
+
+export type CommandConfig = BuildConfig | DevConfig | StripConfig | ZipConfig | GatherConfig
 
 export type BustleConfig = Record<string, CommandConfig>
 

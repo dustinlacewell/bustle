@@ -5,9 +5,9 @@ export const gather = command({
     name: 'gather',
     description: 'Gather any resource import files',
     args: {
-        mod: option({
+        from: option({
             type: string,
-            long: 'mod',
+            long: 'from',
             description: 'Your mod directory'
         }),
         to: option({
