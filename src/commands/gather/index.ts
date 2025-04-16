@@ -15,6 +15,12 @@ export const gather = command({
             long: 'to',
             description: 'Where to copy resources to'
         }),
+        in: option({
+            type: string,
+            long: 'in',
+            description: 'The subdirectory to place resources in',
+            defaultValue: () => '.import'
+        }),
         project: option({
             type: string,
             long: 'project',

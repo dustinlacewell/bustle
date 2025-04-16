@@ -16,6 +16,12 @@ export const build = command({
             long: 'to',
             description: 'Destination path for the mod zip file (C:\\my\\mod.zip)'
         }),
+        importsIn: option({
+            type: string,
+            long: 'importsIn',
+            description: 'The subdirectory to place resource imports in',
+            defaultValue: () => '.import'
+        }),
         name: option({
             type: string,
             long: 'name',

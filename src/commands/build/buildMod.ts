@@ -6,6 +6,7 @@ import { gather_imports } from "../gather/gatherImports.js"
 
 export type BuildOptions = {
     project: string
+    importsIn: string
 } & BuildPackageOptions
 
 export async function buildMod(options: BuildOptions): Promise<void> {
@@ -17,8 +18,9 @@ export async function buildMod(options: BuildOptions): Promise<void> {
         })
         if (options.project != "") {
             await gather_imports({
-                mod: options.from,
-                to: path.join(options.tempDir, '.import'),
+                from: options.from,
+                to: options.tempDir,
+                in: options.importsIn,
                 project: options.project,
                 dryRun: options.dryRun
             })

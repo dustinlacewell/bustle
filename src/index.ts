@@ -29,6 +29,9 @@ async function handleAlias(arg: string): Promise<string[]> {
           if (command.args.to) {
             args.push('--to', command.args.to);
           }
+          if (command.args.importsIn) {
+            args.push('--importsIn', command.args.importsIn);
+          }
           if (command.args.project) {
             args.push('--project', command.args.project);
           }
@@ -100,6 +103,9 @@ async function handleAlias(arg: string): Promise<string[]> {
           }
           if (command.args.to) {
             args.push('--to', command.args.to);
+          }
+          if (command.args.in) {
+            args.push('--in', command.args.in);
           }
           if (command.args.project) {
             args.push('--project', command.args.project);

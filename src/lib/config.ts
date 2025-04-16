@@ -6,6 +6,7 @@ const BuildArgsType = type({
     'from': 'string',
     'to': 'string',
     'name': 'string',
+    'importsIn': 'string',
     'dryRun?': 'boolean',
     'keep?': 'boolean',
     'tempDir?': 'string'
@@ -32,6 +33,7 @@ const StripArgsType = type({
 const GatherArgsType = type({
     'from': 'string',
     'to': 'string',
+    'in': 'string',
     'project': 'string',
     'dryRun?': 'boolean'
 })
@@ -47,6 +49,7 @@ const ZipArgsType = type({
 export type BuildArgs = {
     from: string
     to: string
+    importsIn: string
     project: string
     name: string
     dryRun?: boolean
@@ -72,6 +75,7 @@ export type StripArgs = {
 export type GatherArgs = {
     from: string
     to: string
+    in: string
     project: string
     dryRun?: boolean
 }
