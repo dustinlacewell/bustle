@@ -25,7 +25,10 @@ async function execute() {
         args = args.filter(a => a !== "--verbose")
     }
 
-    if (args.length === 1 && args[0] !== "--help") {
+    if (args.length === 1 && ![
+        "--help",
+        "--version"
+    ].includes(args[0])) {
         const config = await readConfigFile()
         const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
         switch (args[0]) {
