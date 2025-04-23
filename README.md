@@ -59,7 +59,7 @@ MyMod/
 
 Tell Bustle all about your mod.  All paths must be relative to `bustle.json`:
 
-```json
+```jsonc
 {
     // These are REQUIRED:
     "modName": "MyMod",            // The name of your mod
@@ -291,7 +291,7 @@ You can see there are the decompilation tools, Godot editor binaries, the Godot 
 
 A `bustle.json` file tells Bustle everything it needs to know to build your mod.
 
-```json
+```jsonc
 {
     "modName": "MyMod",
     "modDir": "mod",
