@@ -80,15 +80,13 @@ export const redirectImports = async (metadatas: ImportMetadata[], gatherDir: st
     return metadatas
 }
 
-export const writeImport = async (meta: ImportMetadata, modDir: string, buildDir: string, modName: string, logger: Logger) => {
-    const relativeToMod = path.relative(modDir, meta.importPath)
-    const destFile = path.join(buildDir, modName, relativeToMod)
-    await ensureDir(path.dirname(destFile), logger)
-    await writeFile(destFile, meta.content, logger)
+export const writeImport = async (meta: ImportMetadata, logger: Logger) => {
+    await ensureDir(path.dirname(meta.importPath), logger)
+    await writeFile(meta.importPath, meta.content, logger)
 }
 
-export const writeImports = async (metadatas: ImportMetadata[], modDir: string, buildDir: string, modName: string, logger: Logger) => {
-    await Promise.all(metadatas.map(meta => writeImport(meta, modDir, buildDir, modName, logger)))
+export const writeImports = async (metadatas: ImportMetadata[], logger: Logger) => {
+    await Promise.all(metadatas.map(meta => writeImport(meta, logger)))
 }
 
 export const copyResource = async (meta: ImportMetadata, godotDir: string, buildDir: string, gatherDir: string, logger: Logger) => {
@@ -139,7 +137,7 @@ export const gatherImports = async (
     await redirectImports(metas, gatherDir)
 
     // Write the modified import files to buildDir/modName/ maintaining modDir structure
-    await writeImports(metas, modDir, buildDir, modName, logger)
+    await writeImports(metas, logger)
 
     // Copy the resource files to buildDir/gatherDir
     await copyResources(metas, godotDir, buildDir, gatherDir, logger)
