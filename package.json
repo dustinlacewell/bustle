@@ -11,8 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@types/chalk": "^0.4.31",
     "adm-zip": "^0.5.16",
     "arktype": "^2.1.19",
+    "chalk": "^5.4.1",
     "cmd-ts": "^0.13.0",
     "ohm-js": "^17.1.0",
     "xstate": "^5.19.2"
