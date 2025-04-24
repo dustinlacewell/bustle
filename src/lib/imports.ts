@@ -25,7 +25,7 @@ export const matchResourcePath = (text: string): string | null => {
 }
 
 export const matchSourceFile = (text: string): string | null => {
-    const regex = /sourceFile="res:\/\/[^/]+\/(.*?)"/g
+    const regex = /source_file="res:\/\/[^/]+\/(.*?)"/g
     const match = regex.exec(text)
     if (match) {
         return match[1]
@@ -113,17 +113,27 @@ export const loadImports = async (modDir: string, logger: Logger): Promise<Impor
     const importFiles = await findImports(modDir)
 
     for (const file of importFiles) {
-        logger.info(`Loaded import file: ${file}`)
+        logger.extra(`Loaded import file: ${file}`)
     }
+
+    logger.info(`Loaded ${importFiles.length} import files`)
 
     return await parseImports(importFiles, logger)
 }
 
-export const gatherImports = async (modName: string, modDir: string, buildDir: string, gatherDir: string, godotDir: string, logger: Logger, imports: ImportMetadata[] | null = null): Promise<void> => {
+export const gatherImports = async (
+    modName: string,
+    modDir: string,
+    buildDir: string,
+    gatherDir: string,
+    godotDir: string,
+    logger: Logger,
+    imports: ImportMetadata[] | null = null
+): Promise<void> => {
     checkDestSafety(modDir, buildDir, ["modDir", "buildDir"])
-    checkDestSafety(modDir, path.join(buildDir, gatherDir), ["modDir", "buildDir"])
+    checkDestSafety(modDir, path.join(buildDir, gatherDir), ["modDir", "buildDir", "gatherDir"])
 
-    const metas = imports ?? await loadImports(modDir, logger)
+    const metas = imports ?? await loadImports(path.join(buildDir, modName), logger)
 
     // Always redirect the paths in the import files
     await redirectImports(metas, gatherDir)
