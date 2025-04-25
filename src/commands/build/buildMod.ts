@@ -38,8 +38,6 @@ export async function buildMod(
 
     if (gatherDir !== null) {
         await gatherImports(
-            modName,
-            modDir,
             buildDir,
             gatherDir,
             godotDir,

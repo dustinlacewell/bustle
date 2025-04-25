@@ -42,7 +42,7 @@ export const putDevIn = option({
 export const gatherDir = option({
     type: string,
     long: "gather-dir",
-    description: "Directory relative to build-dir to put imports in",
+    description: "Relative directory to put imports in",
     defaultValue: () => ".import"
 })
 

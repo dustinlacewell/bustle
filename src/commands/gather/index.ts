@@ -1,30 +1,33 @@
-import { command } from "cmd-ts"
+import { command, option, string } from "cmd-ts"
 
-import { BustleConfig } from "@/lib/config.js"
 import { gatherImports } from "@/lib/imports.js"
 import { Logger } from "@/lib/logger.js"
 
-import { buildDir, dryRun, gatherDir, godotDir, modDir, modName, verbose } from "../args.js"
+import { dryRun, godotDir, verbose } from "../args.js"
 
 export const gather = command({
     name: "gather",
     description: "Gather resource imports",
     args: {
-        modName,
-        modDir,
-        buildDir,
-        gatherDir,
+        zipRoot: option({
+            type: string,
+            long: "zip-root",
+            description: "Parent directory of your zip content"
+        }),
+        gatherDir: option({
+            type: string,
+            long: "gather-dir",
+            description: "Directory relative to zip-root to put imports in"
+        }),
         godotDir,
         dryRun,
         verbose
     },
-    handler: async ({ modName, modDir, buildDir, gatherDir, godotDir, dryRun, verbose }) => {
+    handler: async ({ zipRoot, gatherDir, godotDir, dryRun, verbose }) => {
         try {
             const logger = new Logger(dryRun, verbose)
             await gatherImports(
-                modName,
-                modDir,
-                buildDir,
+                zipRoot,
                 gatherDir,
                 godotDir,
                 logger
@@ -36,14 +39,3 @@ export const gather = command({
         }
     }
 })
-
-export const _gather = async (config: BustleConfig, logger: Logger) => {
-    await gatherImports(
-        config.modName,
-        config.modDir,
-        config.buildDir,
-        config.gather === null ? ".import" : config.gather,
-        config.godotDir,
-        logger
-    )
-}

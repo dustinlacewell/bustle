@@ -4,7 +4,7 @@ import { run, subcommands } from "cmd-ts"
 import pkg from "../package.json" with { type: "json" }
 import { _build, build as release } from "./commands/build/index.js"
 import { _dev, dev } from "./commands/dev/index.js"
-import { _gather, gather } from "./commands/gather/index.js"
+import { gather } from "./commands/gather/index.js"
 import { _link, link } from "./commands/link/index.js"
 import { _zip, zip } from "./commands/zip/index.js"
 import { readConfigFile } from "./lib/config.js"
@@ -31,31 +31,35 @@ async function execute() {
     ].includes(args[0])) {
         const config = await readConfigFile()
         const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
-        switch (args[0]) {
-            case "dev":
-                await _dev(config, logger)
-                return
-            case "release":
-                await _build(config, logger)
-                return
-            case "link":
-                _link(config, logger)
-                return
-            // case "stage":
-            //     await _stage(config, logger)
-            //     return
-            case "gather":
-                await _gather(config, logger)
-                return
-            // case "strip":
-            //     await _strip(config, logger)
-            //     return
-            case "zip":
-                await _zip(config, logger)
-                return
-            default:
-                console.error(`Unknown command: ${args[0]}`)
-                process.exit(1)
+        if (![
+            "gather"
+        ].includes(args[0])) {
+            switch (args[0]) {
+                case "dev":
+                    await _dev(config, logger)
+                    return
+                case "release":
+                    await _build(config, logger)
+                    return
+                case "link":
+                    _link(config, logger)
+                    return
+                // case "stage":
+                //     await _stage(config, logger)
+                //     return
+                // case "gather":
+                //     await _gather(config, logger)
+                //     return
+                // case "strip":
+                //     await _strip(config, logger)
+                //     return
+                case "zip":
+                    await _zip(config, logger)
+                    return
+                default:
+                    console.error(`Unknown command: ${args[0]}`)
+                    process.exit(1)
+            }
         }
     }
 
