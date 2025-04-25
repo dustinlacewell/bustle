@@ -1,0 +1,15 @@
+{
+  "author": "ldlework",
+  "client_side": true,
+  "description": "Mod for testing Bustle Workshop uploads",
+  "friendly_name": "BustleTestMod",
+  "id": "8293472943",
+  "link": "",
+  "name": "BustleTestMod",
+  "overwrites": false,
+  "priority": 0,
+  "requires": [
+    
+  ],
+  "version": "1.0"
+}

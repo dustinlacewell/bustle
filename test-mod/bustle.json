@@ -1,0 +1,13 @@
+{
+    "modName": "BustleTestMod",
+    "modDir": "BustleTestMod",
+    "godotDir": "godot",
+    "buildDir": "build",
+    "putReleaseIn": ".",
+    "putDevIn": ".",
+    "strip": true,
+    "gather": ".import",
+    "cleanup": false,
+    "optimized": true,
+    "include": ["character.png"]
+}

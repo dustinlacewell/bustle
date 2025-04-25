@@ -1,0 +1,62 @@
+{
+    "configurations": [
+        {
+            "name": "bustle release",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "release"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "bustle dev",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "dev"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "bustle link",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "link"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "bustle gather",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "gather",
+                "--zip-root",
+                "BustleTestMod",
+                "--gather-dir",
+                ".import",
+                "--godot-dir",
+                "E:\\SteamLibrary\\steamapps\\common\\YourOnlyMoveIsHUSTLE\\moddev\\autobot"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        }
+    ]
+}
