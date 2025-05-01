@@ -1,0 +1,3 @@
+[submodule "steamworks"]
+	path = steamworks
+	url = git@github.com:dustinlacewell/steamworks.js.git
