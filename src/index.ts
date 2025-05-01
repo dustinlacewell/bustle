@@ -1,11 +1,13 @@
 #!/usr/bin/env node
+
 import { run, subcommands } from "cmd-ts"
 
-import pkg from "../package.json" with { type: "json" }
+import pkg from "../package.json"
 import { _build, build as release } from "./commands/build/index.js"
 import { _dev, dev } from "./commands/dev/index.js"
 import { gather } from "./commands/gather/index.js"
 import { _link, link } from "./commands/link/index.js"
+import { workshop } from "./commands/workshop/index.js"
 import { _zip, zip } from "./commands/zip/index.js"
 import { readConfigFile } from "./lib/config.js"
 import { Logger } from "./lib/logger.js"
@@ -32,7 +34,7 @@ async function execute() {
         const config = await readConfigFile()
         const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
         if (![
-            "gather"
+            "gather", "workshop"
         ].includes(args[0])) {
             switch (args[0]) {
                 case "dev":
@@ -44,15 +46,6 @@ async function execute() {
                 case "link":
                     _link(config, logger)
                     return
-                // case "stage":
-                //     await _stage(config, logger)
-                //     return
-                // case "gather":
-                //     await _gather(config, logger)
-                //     return
-                // case "strip":
-                //     await _strip(config, logger)
-                //     return
                 case "zip":
                     await _zip(config, logger)
                     return
@@ -71,10 +64,9 @@ async function execute() {
             dev,
             release,
             link,
-            // stage,
             gather,
-            // strip,
-            zip
+            zip,
+            workshop
         }
     })
 
@@ -88,6 +80,9 @@ const main = async () => {
     catch (error) {
         console.error("Error:", error instanceof Error ? error.message : error)
         process.exit(1)
+    }
+    finally {
+        process.exit(0)
     }
 }
 

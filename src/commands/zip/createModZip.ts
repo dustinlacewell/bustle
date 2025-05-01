@@ -16,8 +16,9 @@ export async function createModZip(from: string, to: string, logger: Logger): Pr
         process.exit(1)
     }
 
+    const parentPath = path.dirname(to)
     try {
-        await fs.access(to)
+        await fs.access(parentPath)
     }
     catch (error) {
         console.error("Error:", error instanceof Error ? error.message : error)

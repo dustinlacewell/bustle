@@ -9,7 +9,10 @@ export default [
     {
         languageOptions: {
             parserOptions: {
-                projectService: true,
+                projectService: {
+                    allowDefaultProject: ["*.js", "*.mjs"]
+                },
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 tsconfigRootDir: import.meta.dirname
             }
         }
@@ -43,7 +46,7 @@ export default [
                 { selector: "enum", format: ["PascalCase"] },
                 { selector: "enumMember", format: ["PascalCase"] },
                 { selector: "typeAlias", format: ["PascalCase"] },
-                { selector: "interface", format: ["PascalCase"] },
+                { selector: "interface", format: ["PascalCase"] }
             ]
         }
     },
@@ -66,5 +69,20 @@ export default [
         semi: false,
         commaDangle: "never",
         jsx: true
-    })
+    }),
+    {
+        files: [
+            "src/lib/steam/steam-api.ts",
+            "src/lib/steam/workshop-uploader.ts"
+        ],
+        rules: {
+            // Example: turn off no-explicit-any for this file
+            "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-unsafe-call": "off",
+            "@typescript-eslint/no-unsafe-member-access": "off",
+            "@typescript-eslint/no-unsafe-assignment": "off",
+            "@typescript-eslint/no-unsafe-return": "off"
+            // Add any other rule overrides here
+        }
+    }
 ]

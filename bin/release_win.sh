@@ -10,13 +10,7 @@ mkdir -p win && \
 
 cd win && \
 
-npx esbuild \
-    --format=cjs \
-    --target=node20 \
-    --platform=node \
-    --bundle \
-    --outfile=bundle.js \
-    ../index.js && \
+node ../../bin/build.cjs && \
 
 node --experimental-sea-config ../../sea-config.json && \
 

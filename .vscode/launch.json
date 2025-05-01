@@ -40,6 +40,50 @@
             "type": "node"
         },
         {
+            "name": "bustle workshop upload",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "workshop",
+                "upload",
+                ".\\BustleTestMod.zip",
+                // "--dry-run"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "bustle workshop user",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "workshop",
+                "user"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "name": "bustle workshop pubs",
+            "cwd": "${workspaceFolder}/test-mod",
+            "program": "${workspaceFolder}/src/index.ts",
+            "args": [
+                "workshop",
+                "pubs"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "name": "bustle gather",
             "cwd": "${workspaceFolder}/test-mod",
             "program": "${workspaceFolder}/src/index.ts",

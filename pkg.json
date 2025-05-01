@@ -1,0 +1,5 @@
+{
+    "assets": [
+        "dist/steamworks/win64/steam_api64.dll"
+    ]
+}

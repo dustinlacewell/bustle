@@ -3,8 +3,7 @@
     "editor.detectIndentation": false,
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "always",
-        "source.removeUnusedImports": "always",
-        "source.removeUnused.ts": "always"
+        "source.removeUnusedImports": "always"
     },
     "eslint.validate": [
         "typescript"

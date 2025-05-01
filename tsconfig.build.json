@@ -4,7 +4,7 @@
         "module": "nodenext",
         "moduleResolution": "NodeNext",
         "outDir": "./dist",
-        "rootDir": ".",
+        "rootDir": "./src",
         "strict": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -32,10 +32,8 @@
         ],
     },
     "include": [
-        "build/*.ts",
-        "build/**/*.ts",
         "src/**/*",
-        "tsup.config.ts"
+        "package.json",
     ],
     "exclude": [
         "node_modules",

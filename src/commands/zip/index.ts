@@ -1,5 +1,6 @@
+import path from "node:path"
+
 import { command, option, string } from "cmd-ts"
-import path from "path"
 
 import { BustleConfig } from "@/lib/config.js"
 import { Logger } from "@/lib/logger.js"

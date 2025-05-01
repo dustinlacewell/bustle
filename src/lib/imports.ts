@@ -3,7 +3,6 @@ import path, { basename } from "path"
 
 import { ensureDir, getFilesRecursively, writeBinaryFile, writeFile } from "./fs-utils.js"
 import { Logger } from "./logger.js"
-import { checkDestSafety } from "./path-utils.js"
 
 export type ImportMetadata = {
     sourcePath: string
@@ -90,7 +89,7 @@ export const writeImports = async (metadatas: ImportMetadata[], logger: Logger) 
 }
 
 export const copyResource = async (meta: ImportMetadata, godotDir: string, buildDir: string, gatherDir: string, logger: Logger) => {
-    const sourceFile = path.join(godotDir, meta.relativePath)
+    const sourceFile = path.join(godotDir, ".import", meta.baseName)
     const destFile = path.join(buildDir, gatherDir, meta.baseName)
 
     await ensureDir(path.dirname(destFile), logger)
@@ -120,18 +119,13 @@ export const loadImports = async (modDir: string, logger: Logger): Promise<Impor
 }
 
 export const gatherImports = async (
-    modName: string,
-    modDir: string,
     buildDir: string,
     gatherDir: string,
     godotDir: string,
     logger: Logger,
     imports: ImportMetadata[] | null = null
 ): Promise<void> => {
-    checkDestSafety(modDir, buildDir, ["modDir", "buildDir"])
-    checkDestSafety(modDir, path.join(buildDir, gatherDir), ["modDir", "buildDir", "gatherDir"])
-
-    const metas = imports ?? await loadImports(path.join(buildDir, modName), logger)
+    const metas = imports ?? await loadImports(buildDir, logger)
 
     // Always redirect the paths in the import files
     await redirectImports(metas, gatherDir)

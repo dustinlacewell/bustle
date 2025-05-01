@@ -1,5 +1,6 @@
+import * as fs from "node:fs/promises"
+
 import { type } from "arktype"
-import * as fs from "fs/promises"
 
 // eslint-disable-next-line
 const ConfigType = type({

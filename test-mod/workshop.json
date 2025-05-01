@@ -1,7 +1,10 @@
 {
-    "title": "Bustle's Test Mod",
-    "description": "A mod for testing the workshop upload process.",
-    "preview": "preview.png",
-    "visibility": "unlisted",
-    "tags": ["Tool"]
+  "id": "3472535019",
+  "title": "Bustle's Test Mod",
+  "preview": "preview.png",
+  "description": "A mod for testing the workshop upload process.",
+  "visibility": "unlisted",
+  "tags": [
+    "Tool"
+  ]
 }

@@ -22,7 +22,7 @@ export async function buildDevMod(
 
     await copyDevFiles(modName, modDir, buildDir, logger)
 
-    const zipPath = path.join(putDevIn, `${modName}.zip`)
+    const zipPath = path.join(putDevIn, `${modName}.dev.zip`)
     checkDestSafety(modDir, zipPath, ["modDir", "buildDir", "putDevIn"])
     await createModZip(
         buildDir,

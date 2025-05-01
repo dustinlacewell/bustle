@@ -17,3 +17,5 @@ This is a modding CLI tool for GDScript / Godot.
    prompted for detail by the author.
 
 6. Relative imports need the .js extension
+
+7. 4 spaces, no semicolons, prefer const arrow functions
