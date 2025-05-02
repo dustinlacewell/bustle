@@ -2,7 +2,7 @@ import { command, flag } from "cmd-ts"
 
 import appid from "@/appid.js"
 import { Logger } from "@/lib/logger.js"
-import { steam } from "@/lib/steam/client.js"
+import steam from "@/lib/steam/client.js"
 import { drain, dump } from "@/lib/steam/utils.js"
 
 import { verbose } from "../args.js"

@@ -1,7 +1,7 @@
 import { command, flag } from "cmd-ts"
 
 import { Logger } from "@/lib/logger.js"
-import { workshop } from "@/lib/steam/client.js"
+import steam from "@/lib/steam/client.js"
 import { dump } from "@/lib/steam/utils.js"
 
 import { verbose } from "../args.js"
@@ -22,14 +22,14 @@ export const subs = command({
             const logger = new Logger(false, verbose)
             logger.info("Fetching subscribed Workshop items...")
 
-            const items = workshop.getSubscribedItems()
+            const items = steam.workshop.getSubscribedItems()
 
             if (items.length === 0) {
                 console.log("You are not subscribed to any Workshop items.")
                 process.exit(0)
             }
 
-            const work = await Promise.all(items.map(id => workshop.getItem(id)))
+            const work = await Promise.all(items.map(id => steam.workshop.getItem(id)))
             const results = work
                 .filter(item => item !== null)
                 .map((item, idx) => ({ ...item, id: items[idx] }))

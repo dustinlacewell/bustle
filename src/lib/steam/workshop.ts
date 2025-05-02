@@ -3,7 +3,7 @@ import { constants, readFile } from "fs/promises"
 
 // import sharp from "sharp"
 import appid from "@/appid.js"
-import { workshop } from "@/lib/steam/client.js"
+import steam from "@/lib/steam/client.js"
 
 import { Logger } from "../logger.js"
 import { WorkshopConfig, writeWorkshopConfigFile } from "./config.js"
@@ -49,17 +49,17 @@ export const uploadToWorkshop = async (
     let visibility: number
     switch (config.visibility) {
         case "private":
-            visibility = workshop.UgcItemVisibility.Private
+            visibility = steam.workshop.UgcItemVisibility.Private
             break
         case "friends":
-            visibility = workshop.UgcItemVisibility.FriendsOnly
+            visibility = steam.workshop.UgcItemVisibility.FriendsOnly
             break
         case "unlisted":
-            visibility = workshop.UgcItemVisibility.Unlisted
+            visibility = steam.workshop.UgcItemVisibility.Unlisted
             break
         case "public":
         default:
-            visibility = workshop.UgcItemVisibility.Public
+            visibility = steam.workshop.UgcItemVisibility.Public
             break
     }
 
@@ -70,7 +70,7 @@ export const uploadToWorkshop = async (
 
         if (!logger.dryRun) {
             try {
-                const ugc = await workshop.createItem(appid)
+                const ugc = await steam.workshop.createItem(appid)
                 newId = ugc.itemId
 
                 newData = {
@@ -104,7 +104,7 @@ export const uploadToWorkshop = async (
                 updateNotes = ""
             }
 
-            await workshop.updateItem(BigInt(config.id!), {
+            await steam.workshop.updateItem(BigInt(config.id!), {
                 title: config.title,
                 description: config.description,
                 tags: config.tags,

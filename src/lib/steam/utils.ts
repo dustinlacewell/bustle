@@ -1,6 +1,7 @@
 import { execSync } from "child_process"
 
-import { steam, WorkshopItem, WorkshopPaginatedResult } from "@/lib/steam/client.js"
+import { WorkshopItem, WorkshopPaginatedResult } from "@/lib/steam/client.js"
+import steam from "@/lib/steam/client.js"
 
 import { personaStateChangeEvent } from "./events.js"
 
@@ -76,11 +77,12 @@ export const dump = (obj: unknown): string => {
     )
 }
 
-export const drain = async (callback: (page: number) => Promise<WorkshopPaginatedResult>) => {
+export const drain = async (callback: (page: number) => Promise<WorkshopPaginatedResult>, maxResults?: number) => {
+    maxResults = Math.min(2000, maxResults || 2000)
     const items: WorkshopItem[] = []
     let page = 1
     let result = await callback(page)
-    while (result.returnedResults > 0 && items.length <= 500) {
+    while (result.returnedResults > 0 && items.length <= maxResults) {
         items.push(
             ...result.items.filter(item => item !== null) as WorkshopItem[]
         )

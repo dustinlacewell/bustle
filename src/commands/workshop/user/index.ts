@@ -1,15 +1,15 @@
 import { command } from "cmd-ts"
 
 import { Logger } from "@/lib/logger.js"
+import steam from "@/lib/steam/client.js"
 
 export const user = command({
     name: "user",
     description: "Get your Steam user details",
     args: {},
+    // eslint-disable-next-line @typescript-eslint/require-await
     handler: async () => {
         try {
-            const { init } = await import("@/lib/steam/client.js")
-            const steam = init()
             const logger = new Logger(false, false)
             const steamId = steam.localplayer.getSteamId()
             const name = steam.localplayer.getName()

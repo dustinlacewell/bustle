@@ -21,7 +21,8 @@ export default defineConfig({
         "cmd-ts",
         "console-table-printer",
         "ohm-js",
-        "xstate"
+        "xstate",
+        "word-wrap"
     ],
     external: [
         "electron",

@@ -1,10 +1,122 @@
-import { command, flag, positional, string } from "cmd-ts"
-import { Table } from "console-table-printer"
+import { command, flag, number, option, positional, string } from "cmd-ts"
 
-import appid from "@/appid.js"
-import { dryRun } from "@/commands/args.js"
-import { workshop } from "@/lib/steam/client.js"
-import { drain, dump, getPersonaName } from "@/lib/steam/utils.js"
+import { printTable } from "@/lib/steam/table"
+
+import { getSortFunction, getTags, searchItems } from "../../../lib/steam/search"
+
+const sortFlags = {
+    author: flag({
+        long: "by-author",
+        description: "Sort by author"
+    }),
+    title: flag({
+        long: "by-title",
+        description: "Sort by title"
+    }),
+    upvotes: flag({
+        long: "by-upvotes",
+        description: "Sort by upvotes"
+    }),
+    downvotes: flag({
+        long: "by-downvotes",
+        description: "Sort by downvotes"
+    }),
+    created: flag({
+        long: "by-created",
+        description: "Sort by creation date"
+    }),
+    updated: flag({
+        long: "by-updated",
+        description: "Sort by last update date"
+    }),
+    subscriptions: flag({
+        long: "by-subscriptions",
+        description: "Sort by number of subscriptions"
+    }),
+    favorites: flag({
+        long: "by-favorites",
+        description: "Sort by number of favorites"
+    }),
+    followers: flag({
+        long: "by-followers",
+        description: "Sort by number of followers"
+    }),
+    uniqueSubscriptions: flag({
+        long: "by-unique-subscriptions",
+        description: "Sort by number of unique subscriptions"
+    }),
+    uniqueFavorites: flag({
+        long: "by-unique-favorites",
+        description: "Sort by number of unique favorites"
+    }),
+    uniqueFollowers: flag({
+        long: "by-unique-followers",
+        description: "Sort by number of unique followers"
+    }),
+    uniqueViews: flag({
+        long: "by-unique-views",
+        description: "Sort by number of unique views"
+    }),
+    reportScore: flag({
+        long: "by-report-score",
+        description: "Sort by report score"
+    }),
+    playtime: flag({
+        long: "by-playtime",
+        description: "Sort by playtime"
+    }),
+    sessions: flag({
+        long: "by-sessions",
+        description: "Sort by number of playtime sessions"
+    }),
+    comments: flag({
+        long: "by-comments",
+        description: "Sort by number of comments"
+    })
+}
+
+const tagFlags = {
+    character: flag({
+        long: "character",
+        description: "Search for character mods"
+    }),
+    texture: flag({
+        long: "texture",
+        description: "Search for texture mods"
+    }),
+    sound: flag({
+        long: "sound",
+        description: "Search for sound mods"
+    }),
+    gamemode: flag({
+        long: "gamemode",
+        description: "Search for gamemode mods"
+    }),
+    stage: flag({
+        long: "stage",
+        description: "Search for stage mods"
+    }),
+    tweaks: flag({
+        long: "tweaks",
+        description: "Search for tweaks mods"
+    }),
+    tool: flag({
+        long: "tool",
+        description: "Search for tool mods"
+    }),
+    overhaul: flag({
+        long: "overhaul",
+        description: "Search for overhaul mods"
+    }),
+    clientside: flag({
+        long: "clientside",
+        description: "Search for clientside mods"
+    }),
+    style: flag({
+        long: "style",
+        description: "Search for style mods"
+    })
+}
 
 export const search = command({
     name: "query",
@@ -15,118 +127,54 @@ export const search = command({
             type: string,
             description: "Query string"
         }),
-        character: flag({
-            long: "character",
-            description: "Search for character mods"
+        max: option({
+            type: number,
+            long: "max",
+            description: "Maximum number of results (limit: 2000)",
+            defaultValue: () => 100
         }),
-        texture: flag({
-            long: "texture",
-            description: "Search for texture mods"
+        asc: flag({
+            long: "asc",
+            description: "Sort in ascending order"
         }),
-        sound: flag({
-            long: "sound",
-            description: "Search for sound mods"
+        json: flag({
+            long: "json",
+            description: "Output results as JSON"
         }),
-        gamemode: flag({
-            long: "gamemode",
-            description: "Search for gamemode mods"
-        }),
-        stage: flag({
-            long: "stage",
-            description: "Search for stage mods"
-        }),
-        tweaks: flag({
-            long: "tweaks",
-            description: "Search for tweaks mods"
-        }),
-        tool: flag({
-            long: "tool",
-            description: "Search for tool mods"
-        }),
-        overhaul: flag({
-            long: "overhaul",
-            description: "Search for overhaul mods"
-        }),
-        clientside: flag({
-            long: "clientside",
-            description: "Search for clientside mods"
-        }),
-        style: flag({
-            long: "style",
-            description: "Search for style mods"
-        }),
-        details: flag({
-            long: "details",
-            description: "Show details"
-        }),
-        dryRun
+        ...tagFlags,
+        ...sortFlags
     },
-    handler: async ({ query, character, texture, sound, gamemode, stage, tweaks, tool, overhaul, clientside, style, details }) => {
-        try {
-            const tags: string[] = []
-            if (character) tags.push("Character")
-            if (texture) tags.push("Texture Replacement")
-            if (sound) tags.push("Sound Replacement")
-            if (gamemode) tags.push("Gamemode")
-            if (stage) tags.push("Stage")
-            if (tweaks) tags.push("Tweaks")
-            if (tool) tags.push("Tool")
-            if (overhaul) tags.push("Overhaul")
-            if (clientside) tags.push("Clientside")
-            if (style) tags.push("Style")
-            if (tags.length === 0) tags.push("Character")
-            const results = await drain((page) => {
-                return workshop.getAllItems(
-                    page,
-                    workshop.UGCQueryType.RankedByTotalVotesAsc,
-                    workshop.UGCType.Items,
-                    appid, appid,
-                    {
-                        searchText: query,
-                        requiredTags: tags
-                    }
-                )
-            })
+    handler: async (args) => {
+        const { query, max, json, asc, ...rest } = args
 
-            if (details) {
-                console.log(dump(results))
+        try {
+            const tags = getTags(rest)
+            const sortFunction = getSortFunction(rest)
+            const data = (await searchItems(query, max, tags, sortFunction, asc))
+                .map(item => ({
+                    ...item,
+                    votes: `${item.upvotes}/${item.downvotes}`,
+                    score: Number(item.score.toFixed(2))
+                }))
+
+            if (json) {
+                console.log(JSON.stringify(data, null, 2))
+                process.exit(0)
             }
-            else {
-                const names = await Promise.all(
-                    results.map<Promise<string>>((item) => {
-                        const owner = item.owner
-                        const steamId = BigInt(owner.steamId64)
-                        return getPersonaName(steamId)
-                    })
-                )
-                names.sort()
-                const table = new Table({
-                    columns: [
-                        { name: "item", color: "blue" },
-                        { name: "author", color: "white" },
-                        { name: "id", color: "cyan" },
-                        { name: "upvotes", color: "green" },
-                        { name: "downvotes", color: "red" },
-                        { name: "created", color: "magenta" },
-                        { name: "updated", color: "yellow" }
-                    ]
-                })
-                names.forEach((author, index) => {
-                    const item = results[index]
-                    const created = new Date(item.timeCreated * 1000)
-                    const updated = new Date(item.timeUpdated * 1000)
-                    table.addRow({
-                        item: item.title,
-                        author,
-                        id: item.publishedFileId.toString(),
-                        upvotes: item.numUpvotes,
-                        downvotes: item.numDownvotes,
-                        created: `${created.getMonth()}/${created.getFullYear()}`,
-                        updated: `${updated.getMonth()}/${updated.getFullYear()}`
-                    })
-                })
-                table.printTable()
-            }
+
+            printTable(data, [
+                "title",
+                "author",
+                "id",
+                "votes",
+                "score",
+                "subscriptions",
+                "favorites",
+                "created",
+                "updated",
+                "decay",
+                "comments"
+            ])
         }
         catch (error) {
             console.error(error instanceof Error ? error.message : error)

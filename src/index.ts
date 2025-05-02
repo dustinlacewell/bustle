@@ -3,6 +3,7 @@
 import { run, subcommands } from "cmd-ts"
 
 import pkg from "../package.json"
+import { bootstrap } from "./boostrap"
 import { _build, build as release } from "./commands/build/index.js"
 import { _dev, dev } from "./commands/dev/index.js"
 import { gather } from "./commands/gather/index.js"
@@ -75,6 +76,7 @@ async function execute() {
 
 const main = async () => {
     try {
+        bootstrap()
         await execute()
     }
     catch (error) {
