@@ -5,7 +5,11 @@ import type { SteamModule } from "@/lib/steam/client"
 import { getItem } from "./get/index.js"
 import { pubs } from "./pubs.js"
 import { search } from "./search/index.js"
+import { sub } from "./sub/index.js"
 import { subs } from "./subs.js"
+import { top } from "./top/index.js"
+import { unsub } from "./unsub/index.js"
+import { upload } from "./upload/index.js"
 // import { upload } from "./upload/index.js"
 import { user } from "./user/index.js"
 
@@ -26,11 +30,14 @@ export const workshop = subcommands({
     name: "workshop",
     description: "Steam Workshop commands",
     cmds: {
+        user: wrap(user),
+        upload: wrap(upload),
+        sub: wrap(sub),
+        unsub: wrap(unsub),
         subs: wrap(subs),
         pubs: wrap(pubs),
-        user: wrap(user),
-        // upload: wrap(upload)
+        get: wrap(getItem),
         search: wrap(search),
-        get: wrap(getItem)
+        top: wrap(top)
     }
 })

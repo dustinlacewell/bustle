@@ -104,6 +104,7 @@ export const getPersonaName = (steamId64: bigint): Promise<string> => {
     return new Promise((resolve) => {
         const name = steam.friends.getPersonaName(steamId64)
         if (name === "[unknown]") {
+            console.log(`Waiting for persona name for ${steamId64}`)
             personaStateChangeEvent.on(steamId64.toString(), () => {
                 const name = steam.friends.getPersonaName(steamId64)
                 resolve(name)

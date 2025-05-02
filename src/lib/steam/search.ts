@@ -15,6 +15,7 @@ export type WorkshopItemWithAuthor = {
     uniqueViews: bigint
     playtime: bigint
     sessions: bigint
+    score: number
 } & WorkshopItemStatisticProps
 
 // map over WorkshopItemWithAuthor, take only the numeric fields
@@ -64,7 +65,8 @@ export const sortFunctions = {
     reportScore: sortByField("reportScore"),
     playtime: sortByField("playtime"),
     sessions: sortByField("sessions"),
-    comments: sortByField("comments")
+    comments: sortByField("comments"),
+    score: sortByField("score")
 } as const
 
 export type SortFunction = typeof sortFunctions[keyof typeof sortFunctions]
@@ -89,6 +91,7 @@ export const getSortFunction = (options: SortOptions) => {
     if (options.playtime) return sortFunctions.playtime
     if (options.sessions) return sortFunctions.sessions
     if (options.comments) return sortFunctions.comments
+    if (options.score) return sortFunctions.score
     return sortFunctions.title
 }
 
@@ -169,7 +172,8 @@ export const searchItems = async (query: string, max: number, tags: string[], so
             appid, appid,
             {
                 searchText: query === "*" ? undefined : query,
-                requiredTags: tags
+                requiredTags: tags,
+                rankedByTrendDays: 7
             }
         )
     }, max)

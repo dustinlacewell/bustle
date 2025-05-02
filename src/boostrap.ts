@@ -12,7 +12,6 @@ function writeToStorage(virtualFilePath: string) {
     const realInstallPath = path.join(realInstallDir, filename)
 
     if (!fs.existsSync(realInstallPath)) {
-        console.log("Writing to storage:", virtualFilePath)
         const data = fs.readFileSync(virtualFilePath)
         fs.writeFileSync(realInstallPath, data)
     }
@@ -21,5 +20,7 @@ function writeToStorage(virtualFilePath: string) {
 }
 
 export const bootstrap = () => {
-    writeToStorage(path.join(__dirname, "../dist/steamworks/win64/steam_api64.dll"))
+    if (__dirname.startsWith("C:\\snapshot\\")) {
+        writeToStorage(path.join(__dirname, "../dist/steamworks/win64/steam_api64.dll"))
+    }
 }
