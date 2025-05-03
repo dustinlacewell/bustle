@@ -1,0 +1,51 @@
+name: Build Windows Executable
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install Rust toolchain
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        targets: x86_64-pc-windows-msvc
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build steamworks dependency
+      working-directory: steamworks
+      run: |
+        npm ci
+        npm run build
+    
+    - name: Build application
+      shell: bash
+      run: ./bin/build.sh
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bustle-windows
+        path: dist/win/bustle.exe
+        retention-days: 7
+        compression-level: 0
