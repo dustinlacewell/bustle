@@ -12,4 +12,4 @@ sed -i 's|./dist/win64/|./steamworks/win64/|g' ./dist/index.js
 sed -i 's|const electron = require("electron");||g' ./dist/index.js
 
 export PKG_CACHE_PATH=".pkg"
-npx pkg ./dist/index.js -c pkg.json --targets node20-win-x64 --output ./dist/win/bustle.exe --debug
+npx pkg ./dist/index.js -c pkg.json --targets node20-win-x64 --output ./dist/win/bustle.exe # --debug
