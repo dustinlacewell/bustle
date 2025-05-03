@@ -3,7 +3,7 @@ import { command, flag, number, option, positional, string } from "cmd-ts"
 import { sortFlags, tagFlags } from "@/lib/steam/cli"
 import { printTable } from "@/lib/steam/table"
 
-import { getSortFunction, getTags, searchItems } from "../../../lib/steam/search"
+import { getSortFunction, getTags, searchItems } from "../../lib/steam/search"
 
 export const search = command({
     name: "query",

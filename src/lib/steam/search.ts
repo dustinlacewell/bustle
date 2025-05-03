@@ -163,6 +163,8 @@ export const flattenResult = (result: WorkshopItem, name: string) => {
     }
 }
 
+export type ModItem = ReturnType<typeof flattenResult>
+
 export const searchItems = async (query: string, max: number, tags: string[], sortFunction: SortFunction, asc: boolean) => {
     const results = await drain((page) => {
         return steam.workshop.getAllItems(

@@ -23,7 +23,9 @@ export const getItem = command({
         const { id, json } = args
 
         try {
-            const data = await steam.workshop.getItem(BigInt(id))
+            const data = await steam.workshop.getItem(BigInt(id), {
+                includeLongDescription: true
+            })
 
             if (data === undefined) {
                 console.error("Mod not found")

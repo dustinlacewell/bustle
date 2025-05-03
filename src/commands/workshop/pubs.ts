@@ -5,7 +5,7 @@ import appid from "@/appid.js"
 import { Logger } from "@/lib/logger.js"
 import { getSelectedTags, tagFlags } from "@/lib/steam/cli.js"
 import steam from "@/lib/steam/client.js"
-import { printItemLine } from "@/lib/steam/print.js"
+import { printTaggedItems } from "@/lib/steam/print.js"
 import { indexByTag } from "@/lib/steam/tags.js"
 import { drain, dump } from "@/lib/steam/utils.js"
 
@@ -54,7 +54,9 @@ export const pubs = command({
                     creator: appid,
                     consumer: appid
                 },
-                null
+                {
+                    onlyIds: true
+                }
             ))
 
             if (details) {
@@ -62,33 +64,8 @@ export const pubs = command({
                 process.exit(0)
             }
 
-            // Group items by tags
-            const taggedItems = await indexByTag(items)
-
-            // Check if any tag flags are selected
-            const selectedTags = getSelectedTags(tags)
-            const anyTagSelected = selectedTags.length > 0
-
-            // Print items by tag groups
-            for (const [tag, items] of taggedItems.entries()) {
-                // Skip empty categories
-                if (items.length === 0) {
-                    continue
-                }
-
-                // Skip categories that aren't selected (if any are selected)
-                if (anyTagSelected && !selectedTags.includes(tag)) {
-                    continue
-                }
-
-                console.log(`\n${tag} (${items.length}):`)
-                console.log("-".repeat(tag.length + items.length.toString().length + 4))
-
-                for (const { data } of items) {
-                    printItemLine(data)
-                }
-            }
-
+            const taggedItems = await indexByTag(items.map(item => item.publishedFileId))
+            printTaggedItems(taggedItems, getSelectedTags(tags))
             process.exit(0)
         }
         catch (error) {

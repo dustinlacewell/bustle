@@ -1,9 +1,12 @@
 import { availableTags, WorkshopItem } from "./client"
-import { flattenResult } from "./search"
+import { getCollection } from "./collection"
+import { flattenResult, ModItem } from "./search"
 import { getPersonaName } from "./utils"
 
-export const indexByTag = async (data: Required<WorkshopItem>[]) => {
-    const taggedItems = new Map<string, Array<{ id: bigint, data: ReturnType<typeof flattenResult> }>>()
+export const indexByTag = async (ids: bigint[]) => {
+    const results = await getCollection(ids)
+    // Group items by tags
+    const taggedItems = new Map<string, Array<{ id: bigint, data: ModItem }>>()
 
     // Initialize with "Unknown" category for items without tags
     taggedItems.set("Unknown", [])
@@ -14,12 +17,12 @@ export const indexByTag = async (data: Required<WorkshopItem>[]) => {
     })
 
     // Process each item and add to appropriate tag groups
-    for (const item of data) {
+    for (const item of results) {
         const name = await getPersonaName(item.owner.steamId64)
-        const flatData = flattenResult(item, name)
+        const flatData = flattenResult(item as unknown as Required<WorkshopItem>, name)
 
         if (!item.tags || item.tags.length === 0) {
-            taggedItems.get("Unknown")!.push({ id: item.publishedFileId, data: flatData })
+            taggedItems.get("Unknown")!.push({ id: item.id, data: flatData })
             continue
         }
 
@@ -28,7 +31,7 @@ export const indexByTag = async (data: Required<WorkshopItem>[]) => {
             if (!taggedItems.has(tag)) {
                 taggedItems.set(tag, [])
             }
-            taggedItems.get(tag)!.push({ id: item.publishedFileId, data: flatData })
+            taggedItems.get(tag)!.push({ id: item.id, data: flatData })
         }
     }
 

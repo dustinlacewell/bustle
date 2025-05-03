@@ -22,7 +22,8 @@ export default defineConfig({
         "console-table-printer",
         "ohm-js",
         "xstate",
-        "word-wrap"
+        "word-wrap",
+        "node-fetch"
     ],
     external: [
         "electron",

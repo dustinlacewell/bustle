@@ -4,7 +4,7 @@ import { Logger } from "@/lib/logger.js"
 import { readWorkshopConfigFile } from "@/lib/steam/config.js"
 import { uploadToWorkshop } from "@/lib/steam/workshop.js"
 
-import { dryRun, verbose } from "../../args.js"
+import { dryRun, verbose } from "../args.js"
 
 export const upload = command({
     name: "upload",

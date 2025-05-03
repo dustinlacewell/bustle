@@ -17,6 +17,7 @@
     "chalk": "^5.4.1",
     "cmd-ts": "^0.13.0",
     "console-table-printer": "^2.12.1",
+    "node-fetch": "^3.3.2",
     "ohm-js": "^17.1.0",
     "steamworks.js": "./steamworks",
     "word-wrap": "^1.2.5",
