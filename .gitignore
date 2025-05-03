@@ -1,7 +1,6 @@
 dist
 .specstory
 node_modules
-package-lock.json
 test-mod/build
 .pkg
 BustleTestMod.zip
