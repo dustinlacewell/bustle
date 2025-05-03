@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -55,6 +58,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ steps.version.outputs.is_tag == 'true' && format('Release {0}', steps.version.outputs.version) || 'Development Build' }}
           draft: false
