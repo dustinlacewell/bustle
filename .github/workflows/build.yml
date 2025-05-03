@@ -29,6 +29,7 @@ jobs:
         toolchain: 1.76.0
         target: x86_64-pc-windows-msvc
         components: rustfmt, clippy
+        cache-workspaces: steamworks
     
     - name: Set RUSTFLAGS to allow unexpected cfgs
       shell: bash
@@ -36,9 +37,6 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-    
-    - name: Install pkg globally
-      run: npm install -g pkg@5.8.1
     
     - name: Build steamworks dependency
       working-directory: steamworks
