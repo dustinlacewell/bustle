@@ -61,37 +61,53 @@ PAYLOAD=$(cat <<EOF
 EOF
 )
 
-# Check if a release with this tag already exists
-RELEASE_ID=$(curl -s -H "Authorization: token $TOKEN" \
-    "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$VERSION" | \
-    grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
-
-if [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ]; then
-    echo "Release with tag $VERSION already exists (ID: $RELEASE_ID). Updating..."
+# For non-tag builds, first delete the existing "latest" release if it exists
+if [ "$IS_TAG" = "false" ] && [ "$VERSION" = "latest" ]; then
+    echo "Checking for existing 'latest' release to delete..."
     
-    # Update the existing release
-    curl -s -X PATCH \
+    # Get the release ID for the "latest" tag
+    RELEASE_ID=$(curl -s -H "Authorization: token $TOKEN" \
+        "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$VERSION" | \
+        grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
+    
+    if [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ]; then
+        echo "Deleting existing 'latest' release (ID: $RELEASE_ID)..."
+        
+        # Delete the existing release
+        curl -s -X DELETE \
+            -H "Authorization: token $TOKEN" \
+            "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID"
+        
+        # Sleep to ensure the deletion is processed
+        sleep 2
+        
+        # Delete the tag if it exists
+        curl -s -X DELETE \
+            -H "Authorization: token $TOKEN" \
+            "https://api.github.com/repos/$OWNER/$REPO/git/refs/tags/$VERSION"
+        
+        # Sleep to ensure the tag deletion is processed
+        sleep 2
+    fi
+    
+    # Create a new release
+    echo "Creating new 'latest' release..."
+    RESPONSE=$(curl -s -X POST \
         -H "Authorization: token $TOKEN" \
         -H "Content-Type: application/json" \
         -d "$PAYLOAD" \
-        "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID"
+        "https://api.github.com/repos/$OWNER/$REPO/releases")
     
-    # Delete existing assets
-    ASSETS=$(curl -s -H "Authorization: token $TOKEN" \
-        "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets")
+    RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
     
-    ASSET_IDS=$(echo "$ASSETS" | grep -o '"id": [0-9]*' | sed 's/"id": //')
-    
-    for ASSET_ID in $ASSET_IDS; do
-        echo "Deleting asset $ASSET_ID..."
-        curl -s -X DELETE \
-            -H "Authorization: token $TOKEN" \
-            "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$ASSET_ID"
-    done
+    if [ -z "$RELEASE_ID" ]; then
+        echo "Error creating release. Response: $RESPONSE"
+        exit 1
+    fi
 else
+    # For tag-based releases, just create a new release
     echo "Creating new release with tag $VERSION..."
     
-    # Create a new release
     RESPONSE=$(curl -s -X POST \
         -H "Authorization: token $TOKEN" \
         -H "Content-Type: application/json" \
