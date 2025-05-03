@@ -52,6 +52,11 @@ jobs:
       shell: bash
       run: ./bin/release_win.sh
     
+    - name: Create compressed zip of executable
+      shell: powershell
+      run: |
+        Compress-Archive -Path "dist\win\bustle.exe" -DestinationPath "dist\win\bustle.zip" -CompressionLevel Optimal -Force
+    
     - name: Upload executable artifact
       uses: actions/upload-artifact@v4
       with:
@@ -65,5 +70,13 @@ jobs:
       with:
         name: bustle-installer
         path: dist/win/BustleInstaller.exe
+        retention-days: 7
+        compression-level: 0
+        
+    - name: Upload compressed executable artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bustle-windows-zip
+        path: dist/win/bustle.zip
         retention-days: 7
         compression-level: 0

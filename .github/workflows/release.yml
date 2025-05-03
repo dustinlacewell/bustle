@@ -56,12 +56,28 @@ jobs:
             } else {
               core.warning('No installer artifact found')
             }
+            
+            // Download compressed executable
+            const compressedArtifact = artifacts.data.artifacts.find(artifact => artifact.name === "bustle-windows-zip")
+            if (compressedArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: compressedArtifact.id,
+                archive_format: 'zip'
+              })
+              const fs = require('fs')
+              fs.writeFileSync('bustle-windows-compressed.zip', Buffer.from(download.data))
+            } else {
+              core.warning('No compressed executable artifact found')
+            }
       
       - name: Extract artifacts
         run: |
           mkdir -p artifacts
           unzip -o bustle-windows.zip -d artifacts/ || echo "Failed to extract executable"
           unzip -o bustle-installer.zip -d artifacts/ || echo "Failed to extract installer"
+          unzip -o bustle-windows-compressed.zip -d artifacts/ || echo "Failed to extract compressed executable"
       
       - name: Get version info
         id: version
@@ -87,3 +103,4 @@ jobs:
           files: |
             artifacts/bustle.exe
             artifacts/BustleInstaller.exe
+            artifacts/bustle.zip
