@@ -48,15 +48,7 @@ jobs:
     
     - name: Build application
       shell: bash
-      run: |
-        npx tsup
-        mkdir -p dist/steamworks
-        cp -r steamworks/dist/* dist/steamworks/
-        sed -i 's|./dist/win64/|./steamworks/win64/|g' ./dist/index.js
-        sed -i 's|const electron = require("electron");||g' ./dist/index.js
-        mkdir -p dist/win
-        export PKG_CACHE_PATH=".pkg"
-        pkg ./dist/index.js -c pkg.json --targets node18-win-x64 --output ./dist/win/bustle.exe
+      run: ./bin/build.sh
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
