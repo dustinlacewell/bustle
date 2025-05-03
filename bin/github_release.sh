@@ -129,4 +129,4 @@ upload_asset "$EXE_PATH"
 upload_asset "$INSTALLER_PATH"
 upload_asset "$ZIP_PATH"
 
-echo "Release process completed successfully!"
+echo "Release process completed successfully!!"
