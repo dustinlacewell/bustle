@@ -17,7 +17,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     
     steps:
-      - name: Download artifact
+      - name: Download artifacts
         uses: actions/github-script@v7
         with:
           script: |
@@ -26,22 +26,42 @@ jobs:
               repo: context.repo.repo,
               run_id: ${{ github.event.workflow_run.id }}
             })
-            const matchArtifact = artifacts.data.artifacts.find(artifact => artifact.name === "bustle-windows")
-            if (!matchArtifact) {
-              core.setFailed('No artifact found')
-              return
+            
+            // Download executable
+            const execArtifact = artifacts.data.artifacts.find(artifact => artifact.name === "bustle-windows")
+            if (execArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: execArtifact.id,
+                archive_format: 'zip'
+              })
+              const fs = require('fs')
+              fs.writeFileSync('bustle-windows.zip', Buffer.from(download.data))
+            } else {
+              core.warning('No executable artifact found')
             }
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip'
-            })
-            const fs = require('fs')
-            fs.writeFileSync('artifact.zip', Buffer.from(download.data))
+            
+            // Download installer
+            const installerArtifact = artifacts.data.artifacts.find(artifact => artifact.name === "bustle-installer")
+            if (installerArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: installerArtifact.id,
+                archive_format: 'zip'
+              })
+              const fs = require('fs')
+              fs.writeFileSync('bustle-installer.zip', Buffer.from(download.data))
+            } else {
+              core.warning('No installer artifact found')
+            }
       
-      - name: Extract artifact
-        run: unzip artifact.zip
+      - name: Extract artifacts
+        run: |
+          mkdir -p artifacts
+          unzip -o bustle-windows.zip -d artifacts/ || echo "Failed to extract executable"
+          unzip -o bustle-installer.zip -d artifacts/ || echo "Failed to extract installer"
       
       - name: Get version info
         id: version
@@ -64,4 +84,6 @@ jobs:
           draft: false
           prerelease: ${{ steps.version.outputs.is_tag != 'true' }}
           generate_release_notes: true
-          files: bustle.exe
+          files: |
+            artifacts/bustle.exe
+            artifacts/BustleInstaller.exe

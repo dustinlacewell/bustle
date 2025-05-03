@@ -44,14 +44,26 @@ jobs:
         npm ci
         npm run build
     
-    - name: Build application
-      shell: bash
-      run: ./bin/build.sh
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
     
-    - name: Upload artifact
+    - name: Build application and installer
+      shell: bash
+      run: ./bin/release_win.sh
+    
+    - name: Upload executable artifact
       uses: actions/upload-artifact@v4
       with:
         name: bustle-windows
         path: dist/win/bustle.exe
+        retention-days: 7
+        compression-level: 0
+        
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bustle-installer
+        path: dist/win/BustleInstaller.exe
         retention-days: 7
         compression-level: 0
