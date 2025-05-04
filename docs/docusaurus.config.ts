@@ -91,7 +91,7 @@ const config: Config = {
                 },
                 {
                     to: "/lists",
-                    label: "Mod Lists",
+                    label: "Mods",
                     position: "left"
                 },
                 // { to: "/blog", label: "Blog", position: "left" },
