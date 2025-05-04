@@ -112,10 +112,12 @@ jobs:
             echo "is_tag=true" >> $GITHUB_OUTPUT
             echo "version=$REF_NAME" >> $GITHUB_OUTPUT
             echo "release_name=Release $REF_NAME" >> $GITHUB_OUTPUT
+            echo "also_tag_as_latest=true" >> $GITHUB_OUTPUT
           else
             echo "is_tag=false" >> $GITHUB_OUTPUT
-            echo "version=latest" >> $GITHUB_OUTPUT
+            echo "version=dev" >> $GITHUB_OUTPUT
             echo "release_name=Development Build $PACKAGE_VERSION ($(date +'%Y-%m-%d'))" >> $GITHUB_OUTPUT
+            echo "also_tag_as_latest=false" >> $GITHUB_OUTPUT
           fi
       
       - name: Make release script executable
@@ -130,6 +132,7 @@ jobs:
             "${{ steps.version.outputs.is_tag }}" \
             "${{ steps.version.outputs.version }}" \
             "${{ steps.version.outputs.release_name }}" \
+            "${{ steps.version.outputs.also_tag_as_latest }}" \
             "artifacts/bustle.exe" \
             "artifacts/BustleInstaller.exe" \
             "artifacts/bustle.zip"
