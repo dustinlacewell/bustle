@@ -71,40 +71,106 @@ export const openWorkshopPage = (): void => {
 export const dump = (obj: unknown): string => {
     return JSON.stringify(
         obj,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (_, v) => typeof v === "bigint" ? v.toString() : v,
+
+        (_, v) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            typeof v === "bigint"
+                ? Number(v).toString() === v.toString()
+                    ? Number(v)
+                    : v.toString()
+                : v,
         2
     )
 }
 
-export const drain = async (callback: (page: number) => Promise<WorkshopPaginatedResult>, maxResults?: number) => {
-    maxResults = Math.min(2000, maxResults || 2000)
+export const drain = async (callback: (page: number) => Promise<WorkshopPaginatedResult>, maxResults?: number, concurrency = 10) => {
+    const limit = Math.min(20000, maxResults || 20000)
     const items: WorkshopItem[] = []
-    let page = 1
-    let result = await callback(page)
-    while (result.returnedResults > 0 && items.length <= maxResults) {
-        items.push(
-            ...result.items.filter(item => item !== null) as WorkshopItem[]
+
+    try {
+        // Fetch the first page to get total results
+        const firstPageResult = await callback(1)
+
+        // Process first page results
+        const validFirstPageItems = firstPageResult.items.filter((item): item is WorkshopItem => item !== null)
+        items.push(...validFirstPageItems)
+
+        // If we have enough items or no more results, return early
+        if (items.length >= limit || firstPageResult.returnedResults === 0) {
+            return items
+        }
+
+        // Calculate total pages based on totalResults (50 items per page)
+        const itemsPerPage = 50
+        const totalPages = Math.ceil(firstPageResult.totalResults / itemsPerPage)
+        const remainingPages = Math.min(
+            Math.ceil((limit - items.length) / itemsPerPage),
+            totalPages - 1 // Subtract 1 because we already fetched page 1
         )
-        try {
-            result = await callback(++page)
+
+        if (remainingPages <= 0) {
+            return items
         }
-        catch (error) {
-            if (items.length > 0) {
-                return items
+
+        // Create an array of page numbers to fetch
+        const pageNumbers = Array.from(
+            { length: remainingPages },
+            (_, i) => i + 2 // Start from page 2
+        )
+
+        // Process pages in batches based on concurrency
+        for (let i = 0; i < pageNumbers.length; i += concurrency) {
+            const batch = pageNumbers.slice(i, i + concurrency)
+            const batchPromises = batch.map(page => callback(page))
+
+            // Wait for all promises in the current batch to resolve
+            const batchResults = await Promise.all(batchPromises)
+
+            // Process results from each page in the batch
+            for (let j = 0; j < batchResults.length; j++) {
+                const result = batchResults[j]
+                const page = batch[j]
+
+                if (result.returnedResults > 0) {
+                    const validItems = result.items.filter((item): item is WorkshopItem => item !== null)
+
+                    // If we got no valid items but returnedResults > 0, we might be in a loop
+                    if (validItems.length === 0) {
+                        continue
+                    }
+
+                    items.push(...validItems)
+
+                    // Check if we've reached the limit
+                    if (items.length >= limit) {
+                        break
+                    }
+                }
             }
-            console.error(error instanceof Error ? error.message : error)
-            process.exit(1)
+
+            // Check if we've reached the limit after processing a batch
+            if (items.length >= limit) {
+                break
+            }
         }
+
+        return items
     }
-    return items
+    catch (error) {
+        if (items.length > 0) {
+            console.warn(`Encountered error after collecting ${items.length} items: ${error instanceof Error ? error.message : String(error)}`)
+            return items
+        }
+        console.error(error instanceof Error ? error.message : String(error))
+        process.exit(1)
+    }
 }
 
 export const getPersonaName = (steamId64: bigint): Promise<string> => {
     return new Promise((resolve) => {
         const name = steam.friends.getPersonaName(steamId64)
         if (name === "[unknown]") {
-            personaStateChangeEvent.on(steamId64.toString(), () => {
+            personaStateChangeEvent.once(steamId64.toString(), () => {
                 const name = steam.friends.getPersonaName(steamId64)
                 resolve(name)
             })

@@ -42,8 +42,9 @@ export class SteamModule {
         this.localplayer = steam.localplayer
         this.friends = steam.friends
 
-        console.log("\x1b[2A\x1b[2K\x1b[1B\x1b[2K\x1b[1A")
-        return steam
+        if (process.stdout.isTTY) {
+            console.log("\x1b[2A\x1b[2K\x1b[1B\x1b[2K\x1b[1A")
+        }
     }
 }
 

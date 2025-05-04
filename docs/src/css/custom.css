@@ -1,0 +1,96 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+@font-face {
+    font-family: "Pixeloid Sans";
+    src: url("/fonts/PixeloidSans.ttf");
+}
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #c22559;
+  --ifm-color-primary-dark: #af215f;
+  --ifm-color-primary-darker: #a51f43;
+  --ifm-color-primary-darkest: #881a3b;
+  --ifm-color-primary-light: #d52954;
+  --ifm-color-primary-lighter: #d83250;
+  --ifm-color-primary-lightest: #dd4f69;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  --ifm-background-surface-color: #181a1c !important;
+
+  --yomi-red: #b43557;
+  /* --ifm-link-color: var(--yomi-red);
+  --ifm-navbar-link-hover-color: var(--yomi-red);
+
+  --ifm-color-secondary-dark: var(--yomi-red);
+  --ifm-menu-color-active: var(--yomi-red); */
+}
+
+.navbar {
+    font-family: "Pixeloid Sans", monospace !important;
+    color: white;
+
+    .navbar__logo {
+        margin-right: 20px;
+    }
+
+    .navbar__title {
+        letter-spacing: 1px;
+        vertical-align: middle;
+    }
+}
+
+.theme-doc-sidebar-menu {
+    font-family: "Pixeloid Sans", monospace !important;
+}
+
+.hero {
+    background-image: none !important;
+    background-color: transparent !important;
+    font-family: "Pixeloid Sans", monospace !important;
+    color: white;
+}
+
+button {
+    font-family: "Pixeloid Sans", monospace !important;
+    
+    &:hover {
+        background-color: #aa133b;
+    }
+}
+
+.footer {
+    background-color: #162c4c;
+    font-family: "Pixeloid Sans", monospace !important;
+}
+
+.screenshots {
+    img {
+        background-color: #181818;
+        padding: 10px;
+        border: 1px solid rgb(161, 157, 157);
+        margin: auto;
+        border-radius: 5px;
+    }
+}
+
+pre code {
+    border: 1px solid rgb(161, 157, 157);
+}

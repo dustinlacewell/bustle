@@ -113,7 +113,6 @@ export const getTags = ({ character, texture, sound, gamemode, stage, tweaks, to
     if (overhaul) tags.push("Overhaul")
     if (clientside) tags.push("Clientside")
     if (style) tags.push("Style")
-    if (tags.length === 0) tags.push("Character")
     return tags
 }
 
@@ -174,8 +173,7 @@ export const searchItems = async (query: string, max: number, tags: string[], so
             appid, appid,
             {
                 searchText: query === "*" ? undefined : query,
-                requiredTags: tags,
-                rankedByTrendDays: 7
+                requiredTags: tags.length > 0 ? tags : undefined
             }
         )
     }, max)

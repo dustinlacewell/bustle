@@ -9,7 +9,7 @@ import { _dev, dev } from "./commands/dev/index.js"
 import { gather } from "./commands/gather/index.js"
 import { _link, link } from "./commands/link/index.js"
 import { workshop } from "./commands/workshop/index.js"
-import { _zip, zip } from "./commands/zip/index.js"
+import { zip } from "./commands/zip/index.js"
 import { readConfigFile } from "./lib/config.js"
 import { Logger } from "./lib/logger.js"
 
@@ -32,11 +32,11 @@ async function execute() {
         "--help",
         "--version"
     ].includes(args[0])) {
-        const config = await readConfigFile()
-        const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
         if (![
-            "gather", "workshop"
+            "gather", "workshop", "zip"
         ].includes(args[0])) {
+            const config = await readConfigFile()
+            const logger = new Logger(dryRun || config.dryRun, verbose || config.verbose)
             switch (args[0]) {
                 case "dev":
                     await _dev(config, logger)
@@ -47,9 +47,9 @@ async function execute() {
                 case "link":
                     _link(config, logger)
                     return
-                case "zip":
-                    await _zip(config, logger)
-                    return
+                // case "zip":
+                //     await _zip(config, logger)
+                //     return
                 default:
                     console.error(`Unknown command: ${args[0]}`)
                     process.exit(1)

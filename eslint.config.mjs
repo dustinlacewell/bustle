@@ -57,7 +57,8 @@ export default [
     {
         ignores: [
             "node_modules",
-            "**/node_modules"
+            "**/node_modules",
+            "docs"
         ]
     },
     // syntax rules

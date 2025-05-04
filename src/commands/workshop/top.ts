@@ -2,6 +2,7 @@ import { command, flag, number, option } from "cmd-ts"
 
 import { sortFlags, tagFlags } from "@/lib/steam/cli"
 import { printTable } from "@/lib/steam/table"
+import { dump } from "@/lib/steam/utils"
 
 import { getSortFunction, getTags, searchItems } from "../../lib/steam/search"
 
@@ -13,7 +14,7 @@ export const top = command({
             type: number,
             long: "max",
             description: "Maximum number of results (limit: 100)",
-            defaultValue: () => 10
+            defaultValue: () => 3000
         }),
         json: flag({
             long: "json",
@@ -36,9 +37,11 @@ export const top = command({
                 }))
 
             if (json) {
-                console.log(JSON.stringify(data, null, 2))
+                console.log(dump(data))
                 process.exit(0)
             }
+
+            console.log(`Found ${data.length} results`)
 
             printTable(data, [
                 "title",

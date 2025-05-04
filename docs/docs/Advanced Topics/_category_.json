@@ -1,0 +1,8 @@
+{
+    "position": 99,
+    "label": "Advanced Topics",
+    "link": {
+        "type": "generated-index",
+        "description": "Advanced topics for Bustle."
+    }
+}

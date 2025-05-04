@@ -1,8 +1,5 @@
-import path from "node:path"
-
 import { command, option, string } from "cmd-ts"
 
-import { BustleConfig } from "@/lib/config.js"
 import { Logger } from "@/lib/logger.js"
 import { checkDestSafety } from "@/lib/path-utils.js"
 
@@ -38,12 +35,12 @@ export const zip = command({
     }
 })
 
-export const _zip = async (config: BustleConfig, logger: Logger) => {
-    const destFile = path.join(config.putReleaseIn, `${config.modName}.zip`)
-    checkDestSafety(config.modDir, destFile, ["modDir", "putReleaseIn"])
-    await createModZip(
-        config.buildDir,
-        destFile,
-        logger
-    )
-}
+// export const _zip = async (config: BustleConfig, logger: Logger) => {
+//     const destFile = path.join(config.putReleaseIn, `${config.modName}.zip`)
+//     checkDestSafety(config.modDir, destFile, ["modDir", "putReleaseIn"])
+//     await createModZip(
+//         config.buildDir,
+//         destFile,
+//         logger
+//     )
+// }
