@@ -69,6 +69,7 @@ const config: Config = {
         image: "img/logo.png",
         colorMode: {
             defaultMode: "dark",
+            disableSwitch: true,
             respectPrefersColorScheme: true
         },
         navbar: {
@@ -95,6 +96,19 @@ const config: Config = {
                     position: "left"
                 },
                 // { to: "/blog", label: "Blog", position: "left" },
+
+
+                {
+                    label: "Latest Release",
+                    href: "https://github.com/facebook/docusaurus",
+                    position: "right"
+
+                },
+                {
+                    label: "Dev Build",
+                    href: "https://github.com/facebook/docusaurus",
+                    position: "right"
+                },
                 {
                     href: "https://github.com/dustinlacewell/bustle",
                     label: "GitHub",
@@ -112,10 +126,10 @@ const config: Config = {
                             label: "Getting Started",
                             to: "/docs/intro"
                         },
-                        {
-                            label: "Commands",
-                            to: "/docs/commands"
-                        }
+                        // {
+                        //     label: "Commands",
+                        //     to: "/docs/commands"
+                        // }
                     ]
                 },
                 {
@@ -157,7 +171,7 @@ const config: Config = {
         prism: {
             theme: prismThemes.github,
             darkTheme: prismThemes.dracula,
-            additionalLanguages: ["bash"]
+            additionalLanguages: ["bash"],
         }
     } satisfies Preset.ThemeConfig
 }

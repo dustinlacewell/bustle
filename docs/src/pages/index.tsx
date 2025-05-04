@@ -16,13 +16,29 @@ function HomepageHeader() {
                     <img src="img/logo.png" alt="Bustle Logo" />
                 </Heading>
                 <p className="hero__subtitle">{siteConfig.tagline}</p>
-                <div className={styles.buttons}>
-                    <Link
-                        className="button button--secondary button--lg"
-                        to="/docs/intro"
-                    >
-                        Getting Started - 5min ⏱️
-                    </Link>
+                <div className={styles.buttonsGroup}>
+                    <div className={styles.buttons}>
+                        <Link
+                            className="button button--secondary button--lg"
+                            to="/docs/intro"
+                        >
+                            Getting Started - 5min ⏱️
+                        </Link>
+                    </div>
+                    <div className={styles.buttons}>
+                        <Link
+                            className="button button--secondary button--lg"
+                            to="https://github.com/dustinlacewell/bustle/releases/tag/latest"
+                        >
+                            Latest Release 📦
+                        </Link>
+                        <Link
+                            className="button button--secondary button--lg"
+                            to="https://github.com/dustinlacewell/bustle/releases/tag/dev"
+                        >
+                            Dev Build 📦
+                        </Link>
+                    </div>
                 </div>
             </div>
         </header>
