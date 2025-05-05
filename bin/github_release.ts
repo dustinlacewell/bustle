@@ -162,6 +162,46 @@ const createRelease = async (
     return null
 }
 
+// Delete all assets from a release
+const deleteExistingAssets = async (
+    client: Octokit,
+    owner: string,
+    repo: string,
+    releaseId: number
+): Promise<void> => {
+    try {
+        console.log(`Checking for existing assets on release ${releaseId}...`)
+        
+        const { data: assets } = await client.repos.listReleaseAssets({
+            owner,
+            repo,
+            release_id: releaseId
+        })
+        
+        if (assets.length > 0) {
+            console.log(`Found ${assets.length} existing assets. Deleting...`)
+            
+            for (const asset of assets) {
+                try {
+                    console.log(`Deleting asset ${asset.name} (ID: ${asset.id})...`)
+                    await client.repos.deleteReleaseAsset({
+                        owner,
+                        repo,
+                        asset_id: asset.id
+                    })
+                    console.log(`Successfully deleted asset ${asset.name}`)
+                } catch (error) {
+                    console.error(`Error deleting asset ${asset.name}: ${error}`)
+                }
+            }
+        } else {
+            console.log('No existing assets found.')
+        }
+    } catch (error) {
+        console.error(`Error listing assets: ${error}`)
+    }
+}
+
 // Upload a single asset to a release
 const uploadAsset = async (
     client: Octokit,
@@ -227,6 +267,8 @@ const uploadAllAssets = async (
     repo: string,
     releaseId: number
 ): Promise<boolean> => {
+    await deleteExistingAssets(client, owner, repo, releaseId)
+    
     const assetPaths = getAssetPaths()
     let allSucceeded = true
     
