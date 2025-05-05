@@ -173,7 +173,8 @@ export const searchItems = async (query: string, max: number, tags: string[], so
             appid, appid,
             {
                 searchText: query === "*" ? undefined : query,
-                requiredTags: tags.length > 0 ? tags : undefined
+                requiredTags: tags.length > 0 ? tags : undefined,
+                includeLongDescription: true
             }
         )
     }, max)
