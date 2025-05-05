@@ -28,7 +28,8 @@ const ModLists = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [selectedMod, setSelectedMod] = useState<Mod | null>(null)
     const [availableTags, setAvailableTags] = useState<string[]>([])
-    const [selectedTags, setSelectedTags] = useState<string[]>(["Character"])
+    const [selectedTags, setSelectedTags] = useState<string[]>([])
+    const [previewMode, setPreviewMode] = useState<'hover' | 'inline'>('hover')
 
     useEffect(() => {
         const loadData = async () => {
@@ -165,19 +166,22 @@ const ModLists = () => {
                     <div className={styles.loading}>Loading mod data...</div>
                 ) : (
                     <>
-                        <ModControls 
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            communityLists={communityLists}
-                            selectedList={selectedList}
-                            setSelectedList={setSelectedList}
-                        />
+                        <div className={styles.controlsContainer}>
+                            <ModControls 
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                                selectedList={selectedList}
+                                onSelectList={setSelectedList}
+                                communityLists={communityLists}
+                                previewMode={previewMode}
+                                onPreviewModeChange={setPreviewMode}
+                            />
+                        </div>
                         
                         <TagFilter 
-                            availableTags={availableTags}
+                            allTags={availableTags}
                             selectedTags={selectedTags}
                             onTagToggle={handleTagToggle}
-                            onClearTags={handleClearTags}
                         />
                         
                         <div className={styles.selectedListDescription}>
@@ -213,6 +217,7 @@ const ModLists = () => {
                                     sortConfig={sortConfig}
                                     onSort={requestSort}
                                     onSelectMod={handleSelectMod}
+                                    previewMode={previewMode}
                                 />
                             </div>
                         ) : (

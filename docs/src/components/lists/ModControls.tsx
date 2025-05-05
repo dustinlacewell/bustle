@@ -1,22 +1,29 @@
-import React from 'react'
 import { CommunityList } from './types'
 import styles from '../../pages/lists.module.css'
 
 interface ModControlsProps {
     searchTerm: string
     setSearchTerm: (term: string) => void
-    communityLists: CommunityList[]
     selectedList: string
-    setSelectedList: (list: string) => void
+    onSelectList: (list: string) => void
+    communityLists: CommunityList[]
+    previewMode: 'hover' | 'inline'
+    onPreviewModeChange: (mode: 'hover' | 'inline') => void
 }
 
 const ModControls = ({ 
-    searchTerm, 
-    setSearchTerm, 
-    communityLists, 
+    searchTerm,
+    setSearchTerm,
     selectedList, 
-    setSelectedList 
+    onSelectList, 
+    communityLists, 
+    previewMode, 
+    onPreviewModeChange 
 }: ModControlsProps) => {
+    const togglePreviewMode = () => {
+        onPreviewModeChange(previewMode === 'hover' ? 'inline' : 'hover')
+    }
+    
     return (
         <div className={styles.controls}>
             <div className={styles.searchBox}>
@@ -27,10 +34,11 @@ const ModControls = ({
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
+            
             <div className={styles.listSelector}>
                 <select 
                     value={selectedList} 
-                    onChange={(e) => setSelectedList(e.target.value)}
+                    onChange={(e) => onSelectList(e.target.value)}
                 >
                     <option value="" title="Every mod on the workshop">All Mods</option>
                     {communityLists.map((list) => (
@@ -43,6 +51,16 @@ const ModControls = ({
                         </option>
                     ))}
                 </select>
+            </div>
+            <div className={styles.spacer}></div>
+            <div className={styles.previewToggle}>
+                <button 
+                    className={styles.previewButton}
+                    onClick={togglePreviewMode}
+                    title={previewMode === 'hover' ? "Switch to inline previews" : "Switch to hover previews"}
+                >
+                    {previewMode === 'hover' ? "Inline Previews" : "Hover Previews"}
+                </button>
             </div>
         </div>
     )
