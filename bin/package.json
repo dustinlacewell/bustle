@@ -1,0 +1,14 @@
+{
+  "name": "github-release-tools",
+  "version": "1.0.0",
+  "description": "Tools for managing GitHub releases",
+  "main": "github_release.ts",
+  "scripts": {
+    "release": "tsx github_release.ts"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "tsx": "^3.12.7",
+    "typescript": "^5.0.4"
+  }
+}

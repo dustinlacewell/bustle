@@ -50,28 +50,49 @@ delete_release_if_exists() {
     
     echo "Checking for existing '$TAG' release..."
     
-    RELEASE_ID=$(curl -s -H "Authorization: token $TOKEN" \
-        "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG" | \
-        grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
+    # Get release info with proper error handling
+    RELEASE_INFO=$(curl -s -H "Authorization: token $TOKEN" \
+        "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG")
+    
+    RELEASE_ID=$(echo "$RELEASE_INFO" | grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
     
     if [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ]; then
         echo "Deleting existing '$TAG' release (ID: $RELEASE_ID)..."
         
-        # Delete the existing release
-        curl -s -X DELETE \
+        # Delete the existing release with error checking
+        DELETE_RESPONSE=$(curl -s -w "%{http_code}" -X DELETE \
             -H "Authorization: token $TOKEN" \
-            "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID"
+            "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID")
+        
+        HTTP_CODE=${DELETE_RESPONSE: -3}
+        if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+            echo "Successfully deleted release."
+        else
+            echo "Warning: Failed to delete release. HTTP code: $HTTP_CODE"
+            echo "Response: ${DELETE_RESPONSE%???}"
+        fi
         
         # Sleep to ensure the deletion is processed
         sleep 2
         
         # Delete the tag if it exists
-        curl -s -X DELETE \
+        echo "Deleting tag '$TAG'..."
+        TAG_DELETE_RESPONSE=$(curl -s -w "%{http_code}" -X DELETE \
             -H "Authorization: token $TOKEN" \
-            "https://api.github.com/repos/$OWNER/$REPO/git/refs/tags/$TAG"
+            "https://api.github.com/repos/$OWNER/$REPO/git/refs/tags/$TAG")
+        
+        TAG_HTTP_CODE=${TAG_DELETE_RESPONSE: -3}
+        if [[ $TAG_HTTP_CODE -ge 200 && $TAG_HTTP_CODE -lt 300 ]]; then
+            echo "Successfully deleted tag."
+        else
+            echo "Warning: Failed to delete tag. HTTP code: $TAG_HTTP_CODE"
+            echo "Response: ${TAG_DELETE_RESPONSE%???}"
+        fi
         
         # Sleep to ensure the tag deletion is processed
         sleep 2
+    else
+        echo "No existing release found for tag '$TAG'."
     fi
 }
 
@@ -95,20 +116,41 @@ EOF
     
     # Create a new release
     echo "Creating new '$TAG' release..."
-    RESPONSE=$(curl -s -X POST \
+    RESPONSE=$(curl -s -w "%{http_code}" -X POST \
         -H "Authorization: token $TOKEN" \
         -H "Content-Type: application/json" \
         -d "$RELEASE_PAYLOAD" \
         "https://api.github.com/repos/$OWNER/$REPO/releases")
     
-    local NEW_RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
+    HTTP_CODE=${RESPONSE: -3}
+    RESPONSE_BODY=${RESPONSE%???}
     
-    if [ -z "$NEW_RELEASE_ID" ]; then
-        echo "Error creating release. Response: $RESPONSE"
+    if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+        local NEW_RELEASE_ID=$(echo "$RESPONSE_BODY" | grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
+        echo "Successfully created release with ID: $NEW_RELEASE_ID"
+        echo "$NEW_RELEASE_ID"
+        return 0
+    else
+        echo "Error creating release. HTTP code: $HTTP_CODE"
+        echo "Response: $RESPONSE_BODY"
+        
+        # If the error is because the tag already exists, try to get the existing release ID
+        if [[ $RESPONSE_BODY == *"already_exists"* ]]; then
+            echo "Tag already exists. Getting existing release ID..."
+            EXISTING_RELEASE=$(curl -s -H "Authorization: token $TOKEN" \
+                "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG")
+            
+            EXISTING_ID=$(echo "$EXISTING_RELEASE" | grep -o '"id": [0-9]*' | head -1 | sed 's/"id": //')
+            
+            if [ -n "$EXISTING_ID" ]; then
+                echo "Found existing release with ID: $EXISTING_ID"
+                echo "$EXISTING_ID"
+                return 0
+            fi
+        fi
+        
         return 1
     fi
-    
-    echo "$NEW_RELEASE_ID"
 }
 
 # Upload a single asset
@@ -119,12 +161,21 @@ upload_asset() {
     
     if [ -f "$FILE_PATH" ]; then
         echo "Uploading $FILE_NAME to release $RELEASE_ID..."
-        curl -s -X POST \
+        
+        # Upload with error checking
+        UPLOAD_RESPONSE=$(curl -s -w "%{http_code}" -X POST \
             -H "Authorization: token $TOKEN" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @"$FILE_PATH" \
-            "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILE_NAME"
-        echo ""
+            "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILE_NAME")
+        
+        HTTP_CODE=${UPLOAD_RESPONSE: -3}
+        if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+            echo "Successfully uploaded $FILE_NAME."
+        else
+            echo "Warning: Failed to upload $FILE_NAME. HTTP code: $HTTP_CODE"
+            echo "Response: ${UPLOAD_RESPONSE%???}"
+        fi
     else
         echo "Skipping upload of $FILE_NAME (file not found)"
     fi
@@ -134,6 +185,11 @@ upload_asset() {
 if [ "$IS_TAG" = "true" ]; then
     # For tag-based releases
     echo "Creating version release with tag $VERSION..."
+    
+    # Check if the version release already exists and delete it if it does
+    delete_release_if_exists "$VERSION"
+    
+    # Create a new version release
     RELEASE_ID=$(create_release "$VERSION" "$RELEASE_NAME" "false")
     
     # Upload assets to the version release

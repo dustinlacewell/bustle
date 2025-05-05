@@ -1,6 +1,6 @@
 [Setup]
 AppName=YOMI-Bustle
-AppVersion=0.1.1
+AppVersion=0.2.0
 DefaultDirName={pf}\YOMI-Bustle
 UninstallDisplayIcon={app}\bustle.exe
 OutputBaseFilename=BustleInstaller
