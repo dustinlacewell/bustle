@@ -46,22 +46,9 @@ Bustle has many features. Here are some highlights:
 
 **Workshop Integration**
 
-<div class="screenshots">
-
-![workshop-search](/screenshots/workshop-search.png)
-
-</div>
-
 - Search and sort mods
 - Get detailed info on mods
 - Subscribe and unsubscribe to mods
 - Subscribe and unsubscribe to community mod lists
 
-<div class="screenshots" style={{textAlign: 'center'}}>
-
-
-![workshop-get](/screenshots/workshop-get.png)
-
-
-</div>
-
+Check out the [screenshots](/screenshots) for a look.
