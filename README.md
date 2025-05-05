@@ -12,6 +12,10 @@
 </div>
 </p>
 
+<p align="center">
+<a href="https://bustle.ldlework.com">Documentation is here</a>
+</p>
+  
 <pre>
 $ bustle --help
 bustle &lt;subcommand&gt;
@@ -28,9 +32,3 @@ where &lt;subcommand&gt; can be one of:
 
 For more help, try running `bustle &lt;subcommand&gt; --help`
 </pre>
-
-<p align="center">
-
-<a href="https://bustle.ldlework.com">Documentation is here</a>
-
-</p>
