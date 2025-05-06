@@ -162,6 +162,32 @@ const createRelease = async (
     return null
 }
 
+// Create a Git tag
+const createTag = async (
+    client: Octokit,
+    owner: string,
+    repo: string,
+    tag: string,
+    sha: string
+): Promise<boolean> => {
+    try {
+        console.log(`Creating Git tag '${tag}' pointing to SHA ${sha}...`)
+        
+        await client.git.createRef({
+            owner,
+            repo,
+            ref: `refs/tags/${tag}`,
+            sha
+        })
+        
+        console.log(`Successfully created tag '${tag}'`)
+        return true
+    } catch (error) {
+        console.error(`Error creating tag: ${error}`)
+        return false
+    }
+}
+
 // Delete all assets from a release
 const deleteExistingAssets = async (
     client: Octokit,
@@ -350,7 +376,42 @@ const handleDevRelease = async (
 ): Promise<boolean> => {
     console.log("Updating 'dev' release...")
     
+    // Delete existing release and tag if they exist
     await deleteReleaseAndTag(client, owner, repo, 'dev')
+    
+    // Get the latest commit SHA from the default branch
+    try {
+        const { data: repoData } = await client.repos.get({
+            owner,
+            repo
+        })
+        
+        const defaultBranch = repoData.default_branch
+        const { data: branchData } = await client.repos.getBranch({
+            owner,
+            repo,
+            branch: defaultBranch
+        })
+        
+        const latestCommitSha = branchData.commit.sha
+        
+        // Create the 'dev' tag pointing to the latest commit
+        const tagCreated = await createTag(
+            client,
+            owner,
+            repo,
+            'dev',
+            latestCommitSha
+        )
+        
+        if (!tagCreated) {
+            console.error("Failed to create 'dev' tag")
+            // Continue anyway, as the release might still work
+        }
+    } catch (error) {
+        console.error(`Error creating dev tag: ${error}`)
+        // Continue anyway, as the release might still work
+    }
     
     const releaseId = await createRelease(
         client, 
