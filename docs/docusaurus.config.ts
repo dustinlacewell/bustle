@@ -100,13 +100,13 @@ const config: Config = {
 
                 {
                     label: "Latest Release",
-                    href: "https://github.com/facebook/docusaurus",
+                    href: "https://github.com/dustinlacewell/bustle/releases/tag/latest",
                     position: "right"
 
                 },
                 {
                     label: "Dev Build",
-                    href: "https://github.com/facebook/docusaurus",
+                    href: "https://github.com/dustinlacewell/bustle/releases/tag/dev",
                     position: "right"
                 },
                 {
@@ -137,11 +137,11 @@ const config: Config = {
                     items: [
                         {
                             label: "YOMI Hustle Discord",
-                            href: "https://discordapp.com/invite/docusaurus"
+                            href: "https://discord.gg/youronlymoveishustle"
                         },
                         {
                             label: "Modding Discord",
-                            href: "https://discordapp.com/invite/docusaurus"
+                            href: "https://discord.gg/yomimodding"
                         },
                     ]
                 },
@@ -154,15 +154,15 @@ const config: Config = {
                         // },
                         {
                             label: "GitHub",
-                            href: "https://github.com/facebook/docusaurus"
+                            href: "https://github.com/dustinlacewell/bustle"
                         },
                         {
                             label: "Latest Release",
-                            href: "https://github.com/facebook/docusaurus"
+                            href: "https://github.com/dustinlacewell/bustle/releases/tag/latest"
                         },
                         {
                             label: "Dev Build",
-                            href: "https://github.com/facebook/docusaurus"
+                            href: "https://github.com/dustinlacewell/bustle/releases/tag/dev"
                         }
                     ]
                 }
